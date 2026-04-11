@@ -16,6 +16,44 @@ type AdminDashboardClientProps = {
   logoPath: string;
 };
 
+type AdminTab = "landing-pages" | "tours" | "blog" | "submissions" | "settings";
+
+const landingPageCards = [
+  {
+    title: "Home Page",
+    href: "/",
+    description: "Homepage story, brand promise, and featured social proof.",
+    managedIn: "Landing Pages",
+  },
+  {
+    title: "About Us",
+    href: "/about",
+    description: "Company story, Engatuny meaning, and founder commitment copy.",
+    managedIn: "Landing Pages",
+  },
+  {
+    title: "Tours Landing Page",
+    href: "/tours",
+    description: "Tour collection page driven by the records managed in the Tours tab.",
+    managedIn: "Tours",
+  },
+  {
+    title: "Contact Page",
+    href: "/contact",
+    description: "Contact prompts, office information, and form entry points.",
+    managedIn: "Settings",
+  },
+];
+
+const landingPageFields = [
+  "site_name",
+  "tagline",
+  "site_description",
+  "brand_meaning",
+  "brand_story",
+  "founder_karamoja_commitment",
+] as const;
+
 export function AdminDashboardClient({
   settings,
   tours,
@@ -28,6 +66,7 @@ export function AdminDashboardClient({
   const router = useRouter();
   const [message, setMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<AdminTab>("landing-pages");
   const [settingsState, setSettingsState] = useState({
     site_name: settings.site_name ?? "",
     tagline: settings.tagline ?? "",
@@ -48,6 +87,39 @@ export function AdminDashboardClient({
   const [tourState, setTourState] = useState<Tour[]>(tours);
   const [blogState, setBlogState] = useState<BlogPost[]>(blogPosts);
   const [testimonialState, setTestimonialState] = useState<Testimonial[]>(testimonials);
+
+  const navItems = [
+    {
+      id: "landing-pages" as const,
+      label: "Landing Pages",
+      description: "Home, About, and homepage social proof.",
+      count: landingPageCards.length,
+    },
+    {
+      id: "tours" as const,
+      label: "Tours",
+      description: "Tour pages and itinerary records.",
+      count: tourState.length,
+    },
+    {
+      id: "blog" as const,
+      label: "Blog",
+      description: "Journal articles and updates.",
+      count: blogState.length,
+    },
+    {
+      id: "submissions" as const,
+      label: "Form Submissions",
+      description: "Website enquiries and lead follow-up.",
+      count: contactSubmissions.length,
+    },
+    {
+      id: "settings" as const,
+      label: "Settings",
+      description: "Brand colors, contact details, and logo path.",
+      count: Object.keys(settingsState).length,
+    },
+  ];
 
   async function request(path: string, init: RequestInit, key: string) {
     try {
@@ -85,91 +157,249 @@ export function AdminDashboardClient({
   }
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
       <section className="card overflow-hidden p-8">
-        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-4">
             <img src={logoPath} alt="Engatuny logo" className="h-16 w-16 rounded-full object-cover" />
             <div>
-              <p className="eyebrow">Admin Dashboard</p>
-              <h1 className="mt-2 font-heading text-4xl text-brand-900">
-                Engatuny Admin
-              </h1>
+              <p className="eyebrow">Website Control Panel</p>
+              <h1 className="mt-2 font-heading text-4xl text-brand-900">Engatuny Admin</h1>
               <p className="mt-2 text-sm leading-7 text-charcoal-600">
-                Signed in as {adminEmail}. Manage branding, tours, content, and enquiries.
+                Signed in as {adminEmail}. Use the tabs below to manage each part of the website.
               </p>
             </div>
           </div>
-          <button type="button" onClick={handleLogout} className="btn-ghost">
-            Sign Out
-          </button>
+          <div className="flex flex-wrap gap-3">
+            <StatBadge label="Landing Pages" value={String(landingPageCards.length)} />
+            <StatBadge label="Tours" value={String(tourState.length)} />
+            <StatBadge label="Blog Posts" value={String(blogState.length)} />
+            <StatBadge label="Leads" value={String(contactSubmissions.length)} />
+            <button type="button" onClick={handleLogout} className="btn-ghost">
+              Sign Out
+            </button>
+          </div>
         </div>
         {message ? <p className="mt-5 text-sm font-semibold text-brand-900">{message}</p> : null}
       </section>
 
-      <section className="card p-8">
-        <h2 className="font-heading text-3xl text-brand-900">Site Settings</h2>
-        <div className="mt-6 grid gap-5 md:grid-cols-2">
-          {Object.entries(settingsState).map(([key, value]) => (
-            <label
-              key={key}
-              className={`block space-y-2 ${
-                key.includes("description") ||
-                key.includes("story") ||
-                key.includes("commitment") ||
-                key === "office_address" ||
-                key === "brand_meaning"
-                  ? "md:col-span-2"
-                  : ""
-              }`}
-            >
-              <span className="text-sm font-semibold uppercase tracking-[0.12em] text-charcoal-500">
-                {key.replaceAll("_", " ")}
-              </span>
-              {key.includes("description") ||
-              key.includes("story") ||
-              key.includes("commitment") ||
-              key === "office_address" ||
-              key === "brand_meaning" ? (
-                <textarea
-                  rows={4}
-                  value={value}
-                  onChange={(event) =>
-                    setSettingsState((current) => ({ ...current, [key]: event.target.value }))
-                  }
-                  className="w-full rounded-[1rem] border border-brand-900/10 bg-white px-4 py-3 outline-none focus:border-brand-900"
-                />
-              ) : (
-                <input
-                  value={value}
-                  onChange={(event) =>
-                    setSettingsState((current) => ({ ...current, [key]: event.target.value }))
-                  }
-                  className="w-full rounded-[1rem] border border-brand-900/10 bg-white px-4 py-3 outline-none focus:border-brand-900"
-                />
-              )}
-            </label>
-          ))}
-        </div>
-        <button
-          type="button"
-          className="btn-primary mt-6"
-          onClick={() =>
-            request(
-              "/api/admin/settings",
-              {
-                method: "POST",
-                body: JSON.stringify(settingsState),
-              },
-              "settings",
-            )
-          }
-        >
-          {saving === "settings" ? "Saving..." : "Save Settings"}
-        </button>
-      </section>
+      <div className="grid gap-8 xl:grid-cols-[280px_minmax(0,1fr)]">
+        <aside className="xl:sticky xl:top-28 xl:self-start">
+          <nav className="card overflow-hidden p-3">
+            <div className="space-y-2">
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setActiveTab(item.id)}
+                  className={`w-full rounded-[1.4rem] px-4 py-4 text-left transition-colors ${
+                    activeTab === item.id
+                      ? "bg-brand-900 text-sand-50"
+                      : "bg-transparent text-charcoal-700 hover:bg-sand-50"
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="font-semibold">{item.label}</span>
+                    <span
+                      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                        activeTab === item.id
+                          ? "bg-white/14 text-sand-50"
+                          : "bg-brand-900/6 text-brand-900"
+                      }`}
+                    >
+                      {item.count}
+                    </span>
+                  </div>
+                  <p
+                    className={`mt-2 text-sm leading-6 ${
+                      activeTab === item.id ? "text-sand-50/78" : "text-charcoal-500"
+                    }`}
+                  >
+                    {item.description}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </nav>
+        </aside>
 
-      <CrudSection
+        <div className="space-y-8">
+          {activeTab === "landing-pages" ? (
+            <>
+              <WorkspaceHeader
+                title="Landing Pages"
+                description="Manage the key story content that shapes the Home and About pages, and keep homepage testimonials easy to update."
+              />
+
+              <section className="grid gap-4 md:grid-cols-2">
+                {landingPageCards.map((page) => (
+                  <article key={page.title} className="card p-6">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <h3 className="font-heading text-2xl text-brand-900">{page.title}</h3>
+                        <p className="mt-3 text-sm leading-7 text-charcoal-600">
+                          {page.description}
+                        </p>
+                      </div>
+                      <span className="rounded-full bg-sand-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-brand-900">
+                        {page.managedIn}
+                      </span>
+                    </div>
+                    <a href={page.href} target="_blank" rel="noreferrer" className="btn-ghost mt-5">
+                      View Page
+                    </a>
+                  </article>
+                ))}
+              </section>
+
+              <section className="card p-8">
+                <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                  <div>
+                    <h2 className="font-heading text-3xl text-brand-900">Core Landing Page Copy</h2>
+                    <p className="mt-2 text-sm leading-7 text-charcoal-600">
+                      These fields control the main brand and story language visitors see first.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn-primary"
+                    onClick={() =>
+                      request(
+                        "/api/admin/settings",
+                        {
+                          method: "POST",
+                          body: JSON.stringify(settingsState),
+                        },
+                        "landing-pages",
+                      )
+                    }
+                  >
+                    {saving === "landing-pages" ? "Saving..." : "Save Landing Page Content"}
+                  </button>
+                </div>
+                <div className="mt-6 grid gap-5 md:grid-cols-2">
+                  {landingPageFields.map((key) => (
+                    <SettingField
+                      key={key}
+                      fieldKey={key}
+                      value={settingsState[key]}
+                      onChange={(value) =>
+                        setSettingsState((current) => ({ ...current, [key]: value }))
+                      }
+                    />
+                  ))}
+                </div>
+              </section>
+
+              <CrudSection
+                title="Homepage Testimonials"
+                description="These quotes appear as social proof on the public-facing site."
+                items={testimonialState}
+                onAdd={() =>
+                  setTestimonialState((current) => [
+                    ...current,
+                    { name: "", homeCountry: "", trip: "", quote: "" },
+                  ])
+                }
+                renderItem={(testimonial, index) => (
+                  <article key={testimonial.id ?? `testimonial-${index}`} className="rounded-[1.5rem] border border-brand-900/10 p-6">
+                    <CrudGrid>
+                      <Field label="Name" value={testimonial.name} onChange={(value) => updateItem(setTestimonialState, index, { name: value })} />
+                      <Field label="Home Country" value={testimonial.homeCountry} onChange={(value) => updateItem(setTestimonialState, index, { homeCountry: value })} />
+                      <Field label="Trip" value={testimonial.trip} onChange={(value) => updateItem(setTestimonialState, index, { trip: value })} className="md:col-span-2" />
+                      <TextAreaField label="Quote" value={testimonial.quote} onChange={(value) => updateItem(setTestimonialState, index, { quote: value })} className="md:col-span-2" />
+                    </CrudGrid>
+                    <div className="mt-5 flex flex-wrap gap-3">
+                      <button
+                        type="button"
+                        className="btn-primary"
+                        onClick={() =>
+                          request(
+                            "/api/admin/testimonials",
+                            {
+                              method: "POST",
+                              body: JSON.stringify({ ...testimonial, status: "published" }),
+                            },
+                            `testimonial-${index}`,
+                          )
+                        }
+                      >
+                        {saving === `testimonial-${index}` ? "Saving..." : "Save Testimonial"}
+                      </button>
+                      {testimonial.id ? (
+                        <button
+                          type="button"
+                          className="btn-ghost"
+                          onClick={() =>
+                            request(`/api/admin/testimonials?id=${testimonial.id}`, { method: "DELETE" }, `testimonial-delete-${index}`)
+                          }
+                        >
+                          Delete
+                        </button>
+                      ) : null}
+                    </div>
+                  </article>
+                )}
+              />
+            </>
+          ) : null}
+
+          {activeTab === "settings" ? (
+            <>
+              <WorkspaceHeader
+                title="Settings"
+                description="Global website configuration for branding, contact details, and reusable site-wide values."
+              />
+
+              <section className="card p-8">
+                <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                  <div>
+                    <h2 className="font-heading text-3xl text-brand-900">Website Settings</h2>
+                    <p className="mt-2 text-sm leading-7 text-charcoal-600">
+                      Change these values with care. They affect the full site experience.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn-primary"
+                    onClick={() =>
+                      request(
+                        "/api/admin/settings",
+                        {
+                          method: "POST",
+                          body: JSON.stringify(settingsState),
+                        },
+                        "settings",
+                      )
+                    }
+                  >
+                    {saving === "settings" ? "Saving..." : "Save Settings"}
+                  </button>
+                </div>
+                <div className="mt-6 grid gap-5 md:grid-cols-2">
+                  {Object.entries(settingsState).map(([key, value]) => (
+                    <SettingField
+                      key={key}
+                      fieldKey={key}
+                      value={value}
+                      onChange={(nextValue) =>
+                        setSettingsState((current) => ({ ...current, [key]: nextValue }))
+                      }
+                    />
+                  ))}
+                </div>
+              </section>
+            </>
+          ) : null}
+
+          {activeTab === "tours" ? (
+            <>
+              <WorkspaceHeader
+                title="Tours"
+                description="Manage the Tours landing page through the tour collection below, then open each itinerary as a dedicated landing page record."
+              />
+
+              <CrudSection
         title="Tours"
         description="Manage independent tour landing pages, route copy, and itinerary detail."
         items={tourState}
@@ -287,8 +517,17 @@ export function AdminDashboardClient({
           </article>
         )}
       />
+            </>
+          ) : null}
 
-      <CrudSection
+          {activeTab === "blog" ? (
+            <>
+              <WorkspaceHeader
+                title="Blog"
+                description="Manage all journal content in one place with a simpler article editing flow."
+              />
+
+              <CrudSection
         title="Blog Posts"
         description="Manage journal content, publishing dates, and story copy."
         items={blogState}
@@ -355,59 +594,17 @@ export function AdminDashboardClient({
           </article>
         )}
       />
+            </>
+          ) : null}
 
-      <CrudSection
-        title="Testimonials"
-        description="Update guest quotes that appear on the public site."
-        items={testimonialState}
-        onAdd={() =>
-          setTestimonialState((current) => [
-            ...current,
-            { name: "", homeCountry: "", trip: "", quote: "" },
-          ])
-        }
-        renderItem={(testimonial, index) => (
-          <article key={testimonial.id ?? `testimonial-${index}`} className="rounded-[1.5rem] border border-brand-900/10 p-6">
-            <CrudGrid>
-              <Field label="Name" value={testimonial.name} onChange={(value) => updateItem(setTestimonialState, index, { name: value })} />
-              <Field label="Home Country" value={testimonial.homeCountry} onChange={(value) => updateItem(setTestimonialState, index, { homeCountry: value })} />
-              <Field label="Trip" value={testimonial.trip} onChange={(value) => updateItem(setTestimonialState, index, { trip: value })} className="md:col-span-2" />
-              <TextAreaField label="Quote" value={testimonial.quote} onChange={(value) => updateItem(setTestimonialState, index, { quote: value })} className="md:col-span-2" />
-            </CrudGrid>
-            <div className="mt-5 flex flex-wrap gap-3">
-              <button
-                type="button"
-                className="btn-primary"
-                onClick={() =>
-                  request(
-                    "/api/admin/testimonials",
-                    {
-                      method: "POST",
-                      body: JSON.stringify({ ...testimonial, status: "published" }),
-                    },
-                    `testimonial-${index}`,
-                  )
-                }
-              >
-                {saving === `testimonial-${index}` ? "Saving..." : "Save Testimonial"}
-              </button>
-              {testimonial.id ? (
-                <button
-                  type="button"
-                  className="btn-ghost"
-                  onClick={() =>
-                    request(`/api/admin/testimonials?id=${testimonial.id}`, { method: "DELETE" }, `testimonial-delete-${index}`)
-                  }
-                >
-                  Delete
-                </button>
-              ) : null}
-            </div>
-          </article>
-        )}
-      />
+          {activeTab === "submissions" ? (
+            <>
+              <WorkspaceHeader
+                title="Form Submissions"
+                description="Review website enquiries and keep their follow-up status clear for the team."
+              />
 
-      <section className="card p-8">
+              <section className="card p-8">
         <h2 className="font-heading text-3xl text-brand-900">Contact Enquiries</h2>
         <div className="mt-6 space-y-4">
           {contactSubmissions.length ? (
@@ -452,6 +649,10 @@ export function AdminDashboardClient({
           )}
         </div>
       </section>
+            </>
+          ) : null}
+        </div>
+      </div>
     </div>
   );
 }
@@ -482,6 +683,30 @@ function CrudSection<T>({
       </div>
       <div className="mt-6 space-y-5">{items.map((item, index) => renderItem(item, index))}</div>
     </section>
+  );
+}
+
+function WorkspaceHeader({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <section className="card p-8">
+      <p className="eyebrow">{title}</p>
+      <h2 className="mt-3 font-heading text-4xl text-brand-900">{title}</h2>
+      <p className="mt-3 max-w-3xl text-sm leading-7 text-charcoal-600">{description}</p>
+    </section>
+  );
+}
+
+function StatBadge({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-full bg-sand-50 px-4 py-2 text-sm font-semibold text-brand-900">
+      {label}: {value}
+    </div>
   );
 }
 
@@ -517,16 +742,55 @@ function Field({
   );
 }
 
+function SettingField({
+  fieldKey,
+  value,
+  onChange,
+}: {
+  fieldKey: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const isLongField =
+    fieldKey.includes("description") ||
+    fieldKey.includes("story") ||
+    fieldKey.includes("commitment") ||
+    fieldKey === "office_address" ||
+    fieldKey === "brand_meaning";
+
+  if (isLongField) {
+    return (
+      <TextAreaField
+        label={fieldKey.replaceAll("_", " ")}
+        value={value}
+        onChange={onChange}
+        className="md:col-span-2"
+        rows={4}
+      />
+    );
+  }
+
+  return (
+    <Field
+      label={fieldKey.replaceAll("_", " ")}
+      value={value}
+      onChange={onChange}
+    />
+  );
+}
+
 function TextAreaField({
   label,
   value,
   onChange,
   className,
+  rows = 6,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   className?: string;
+  rows?: number;
 }) {
   return (
     <label className={`block space-y-2 ${className ?? ""}`}>
@@ -534,7 +798,7 @@ function TextAreaField({
         {label}
       </span>
       <textarea
-        rows={6}
+        rows={rows}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         className="w-full rounded-[1rem] border border-brand-900/10 bg-white px-4 py-3 outline-none focus:border-brand-900"
