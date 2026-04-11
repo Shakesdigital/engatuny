@@ -3,12 +3,17 @@
 import type { FormEvent } from "react";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import {
+  DEFAULT_ADMIN_EMAIL,
+  DEFAULT_ADMIN_USERNAME,
+  resolveAdminLogin,
+} from "@/lib/admin-credentials";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 export function AdminLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState(DEFAULT_ADMIN_USERNAME);
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(
     searchParams.get("error") === "admin"
@@ -25,7 +30,7 @@ export function AdminLoginForm() {
     try {
       const supabase = createSupabaseBrowserClient();
       const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
+        email: resolveAdminLogin(identifier),
         password,
       });
 
@@ -46,15 +51,17 @@ export function AdminLoginForm() {
       <h1 className="font-heading text-4xl text-forest-900">CMS Login</h1>
       <p className="mt-3 text-sm leading-7 text-charcoal-600">
         Sign in with a Supabase user account that has `profiles.is_admin = true`.
+        Default alias: {DEFAULT_ADMIN_USERNAME} maps to {DEFAULT_ADMIN_EMAIL}.
       </p>
       <div className="mt-6 space-y-5">
         <label className="block space-y-2">
-          <span className="text-sm font-semibold text-charcoal-700">Email</span>
+          <span className="text-sm font-semibold text-charcoal-700">Username or Email</span>
           <input
-            type="email"
+            type="text"
             required
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            value={identifier}
+            onChange={(event) => setIdentifier(event.target.value)}
+            placeholder={DEFAULT_ADMIN_USERNAME}
             className="w-full rounded-[1rem] border border-forest-900/10 bg-white px-4 py-3 outline-none focus:border-forest-900"
           />
         </label>

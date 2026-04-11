@@ -81,15 +81,22 @@ It also adds:
 ## Activate the CMS
 
 1. Create a user in Supabase Auth using email/password.
+   Recommended default admin account:
+   Email: `admin@engatuny.com`
+   Password: `root`
 2. Promote that user to admin in SQL:
 
 ```sql
 update public.profiles
 set is_admin = true
-where email = 'your-admin-email@example.com';
+where email = 'admin@engatuny.com';
 ```
 
-3. Visit `/admin/login` and sign in with that account.
+3. Visit `/admin/login` and sign in with either:
+   Username: `Admin`
+   Password: `root`
+
+The login form maps the username `Admin` to the Supabase email `admin@engatuny.com`.
 
 The `/admin` area lets you manage:
 
