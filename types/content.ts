@@ -5,6 +5,8 @@ export type Tour = {
   slug: string;
   title: string;
   tagline: string;
+  heroDescription: string;
+  overview: string;
   price: string;
   duration: string;
   durationDays: number;
@@ -15,8 +17,15 @@ export type Tour = {
   image: string;
   imageAlt: string;
   enquirySubject: string;
+  routeDetails: string;
   itinerary: string[];
   highlights: string[];
+  idealFor: string[];
+  inclusions: string[];
+  accommodations: string[];
+  landscapeStory: string;
+  cultureStory: string;
+  wildlifeStory: string;
 };
 
 export type Testimonial = {
@@ -54,6 +63,14 @@ export type SiteSettings = {
   phone: string;
   whatsApp: string;
   office: string;
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+  surfaceColor: string;
+  logoPath: string;
+  brandMeaning: string;
+  brandStory: string;
+  founderKaramojaCommitment: string;
 };
 
 export type ContactSubmission = {

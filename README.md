@@ -1,6 +1,6 @@
 # Engatuny Tours & Travel
 
-A modern, mobile-first Uganda travel website for Engatuny Tours & Travel, built with Next.js App Router and a lean Supabase-ready CMS foundation.
+A modern, mobile-first Uganda travel website for Engatuny Tours & Travel, built with Next.js App Router and a Supabase-backed CMS foundation.
 
 ## Stack
 
@@ -12,13 +12,15 @@ A modern, mobile-first Uganda travel website for Engatuny Tours & Travel, built 
 
 ## What is included
 
-- Sticky responsive navigation with mobile menu
+- Sticky responsive navigation with mobile menu and logo branding
 - Home, About Us, Tours, Blog, and Contact pages
-- Filterable tours browser with the exact itineraries provided
+- Filterable tours browser plus dedicated landing pages for every tour
 - Contact enquiry form with optional Supabase persistence
 - SEO metadata and sitemap
 - Supabase schema for settings, pages, modules, tours, blog posts, testimonials, and contact submissions
-- Supabase-authenticated admin CMS at `/admin`
+- Supabase-authenticated admin area at `/admin`
+- Branding controls for colors, logo path, brand story, and founder commitment
+- Richer tour CMS fields for route details, inclusions, accommodation options, and landing-page content
 - Seed content for Engatuny tours, testimonials, and blog articles
 
 ## Run locally
@@ -57,6 +59,7 @@ Run the migrations in order:
 - [202604110002_admin_auth.sql](/E:/Engatuny/supabase/migrations/202604110002_admin_auth.sql)
 - [202604110003_public_contact_insert.sql](/E:/Engatuny/supabase/migrations/202604110003_public_contact_insert.sql)
 - [202604110004_fix_seed_copy.sql](/E:/Engatuny/supabase/migrations/202604110004_fix_seed_copy.sql)
+- [202604110005_branding_and_tour_pages.sql](/E:/Engatuny/supabase/migrations/202604110005_branding_and_tour_pages.sql)
 
 This migration creates:
 
@@ -101,7 +104,9 @@ The login form maps the username `Admin` to the Supabase email `admin@engatuny.c
 The `/admin` area lets you manage:
 
 - site settings
-- tours
+- brand colors and logo path
+- founder and brand story copy
+- tours and their landing pages
 - blog posts
 - testimonials
 - contact enquiry statuses
@@ -136,4 +141,4 @@ The site uses free Pexels-hosted images. Review the current license before produ
 
 - The public website now reads from Supabase when environment variables are present and falls back to local seed data only when Supabase is not configured.
 - The contact API route validates input and stores submissions in Supabase using the anon key or service role key when available.
-- The current CMS layer is intentionally lean and public-site focused, with a simple admin dashboard rather than a heavy custom back office.
+- The current CMS layer is still intentionally lightweight, but the tour model now supports dedicated landing-page content and brand-managed settings.

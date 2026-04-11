@@ -1,3 +1,4 @@
+import { BrandLogo } from "@/components/site/brand-logo";
 import { MobileMenu } from "@/components/site/mobile-menu";
 
 const navigation = [
@@ -8,20 +9,18 @@ const navigation = [
   { href: "/contact", label: "Contact" },
 ];
 
-export function Header({ siteName }: { siteName: string }) {
+export function Header({
+  siteName,
+  logoPath,
+}: {
+  siteName: string;
+  logoPath: string;
+}) {
   return (
-    <header className="sticky top-0 z-50 border-b border-forest-900/10 bg-sand-50/92 backdrop-blur-xl">
-      <div className="layout flex h-20 items-center justify-between gap-6">
+    <header className="sticky top-0 z-50 border-b border-brand-900/10 bg-[color:var(--surface-color-50)]/92 backdrop-blur-xl">
+      <div className="layout flex h-24 items-center justify-between gap-6">
         <a href="/" className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-forest-900 text-lg font-bold text-sand-50">
-            E
-          </div>
-          <div>
-            <p className="font-heading text-2xl text-forest-900">{siteName}</p>
-            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-charcoal-500">
-              Proudly Ugandan
-            </p>
-          </div>
+          <BrandLogo logoPath={logoPath} siteName={siteName} compact />
         </a>
 
         <nav className="hidden items-center gap-8 text-sm font-semibold text-charcoal-700 md:flex">
@@ -29,7 +28,7 @@ export function Header({ siteName }: { siteName: string }) {
             <a
               key={item.href}
               href={item.href}
-              className="transition-colors duration-200 hover:text-forest-900"
+              className="transition-colors duration-200 hover:text-brand-900"
             >
               {item.label}
             </a>

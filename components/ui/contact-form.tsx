@@ -1,13 +1,14 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
-import { tours } from "@/lib/site-data";
+import type { Tour } from "@/types/content";
 
 type ContactFormProps = {
   preferredTour?: string;
+  tours: Tour[];
 };
 
-export function ContactForm({ preferredTour }: ContactFormProps) {
+export function ContactForm({ preferredTour, tours }: ContactFormProps) {
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">(
     "idle",
   );
@@ -18,7 +19,7 @@ export function ContactForm({ preferredTour }: ContactFormProps) {
     }
 
     return tours.find((tour) => tour.slug === preferredTour)?.title ?? "";
-  }, [preferredTour]);
+  }, [preferredTour, tours]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -58,7 +59,7 @@ export function ContactForm({ preferredTour }: ContactFormProps) {
           <input
             required
             name="name"
-            className="w-full rounded-[1rem] border border-forest-900/10 bg-white px-4 py-3 outline-none transition-colors focus:border-forest-900"
+            className="w-full rounded-[1rem] border border-brand-900/10 bg-white px-4 py-3 outline-none transition-colors focus:border-brand-900"
             placeholder="Your full name"
           />
         </label>
@@ -68,7 +69,7 @@ export function ContactForm({ preferredTour }: ContactFormProps) {
             required
             type="email"
             name="email"
-            className="w-full rounded-[1rem] border border-forest-900/10 bg-white px-4 py-3 outline-none transition-colors focus:border-forest-900"
+            className="w-full rounded-[1rem] border border-brand-900/10 bg-white px-4 py-3 outline-none transition-colors focus:border-brand-900"
             placeholder="you@example.com"
           />
         </label>
@@ -79,7 +80,7 @@ export function ContactForm({ preferredTour }: ContactFormProps) {
         <select
           name="preferredTour"
           defaultValue={defaultTour}
-          className="w-full rounded-[1rem] border border-forest-900/10 bg-white px-4 py-3 outline-none transition-colors focus:border-forest-900"
+          className="w-full rounded-[1rem] border border-brand-900/10 bg-white px-4 py-3 outline-none transition-colors focus:border-brand-900"
         >
           <option value="">Select a journey</option>
           {tours.map((tour) => (
@@ -96,8 +97,8 @@ export function ContactForm({ preferredTour }: ContactFormProps) {
           required
           name="message"
           rows={6}
-          className="w-full rounded-[1rem] border border-forest-900/10 bg-white px-4 py-3 outline-none transition-colors focus:border-forest-900"
-          placeholder="Tell us your dream dates, travel style, and what you want to feel in Uganda."
+          className="w-full rounded-[1rem] border border-brand-900/10 bg-white px-4 py-3 outline-none transition-colors focus:border-brand-900"
+          placeholder="Tell us your dream dates, travel style, and whether you want more wildlife, culture, or a balanced route."
         />
       </label>
 
@@ -106,7 +107,7 @@ export function ContactForm({ preferredTour }: ContactFormProps) {
           {status === "submitting" ? "Sending..." : "Send Enquiry"}
         </button>
         {status === "success" ? (
-          <p className="text-sm font-semibold text-forest-800">
+          <p className="text-sm font-semibold text-brand-900">
             Your message is on its way. We will reply shortly.
           </p>
         ) : null}

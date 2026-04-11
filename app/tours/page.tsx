@@ -6,7 +6,7 @@ import { getTours } from "@/lib/cms";
 export const metadata: Metadata = {
   title: "Tours",
   description:
-    "Explore small-group Uganda journeys from Jinja to Bwindi, with exact day-by-day itineraries, pricing, and easy enquiry options.",
+    "Explore Uganda journeys with dedicated landing pages, detailed itineraries, and clear cultural and wildlife focus.",
 };
 
 export default async function ToursPage() {
@@ -14,7 +14,7 @@ export default async function ToursPage() {
 
   return (
     <>
-      <section className="relative isolate overflow-hidden bg-forest-900 py-24 text-sand-50 md:py-32">
+      <section className="relative isolate overflow-hidden bg-brand-900 py-24 text-sand-50 md:py-32">
         <div className="absolute inset-0 opacity-20">
           <div
             className="h-full w-full bg-cover bg-center"
@@ -25,13 +25,13 @@ export default async function ToursPage() {
           />
         </div>
         <div className="layout relative">
-          <p className="eyebrow text-gold-400">Our journeys</p>
+          <p className="eyebrow text-brand-300">Our journeys</p>
           <h1 className="mt-4 font-heading text-5xl leading-tight md:max-w-4xl md:text-6xl">
-            Curated Adventures Across Uganda.
+            Tour pages built to show the route, mood, and meaning of each journey.
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-sand-50/78">
-            Browse by duration, region, or travel style. Every route is simple
-            to understand and easy to enquire about.
+            Browse by duration, region, or travel style, then open any tour for its
+            full landing page and detailed story.
           </p>
         </div>
       </section>
@@ -40,8 +40,8 @@ export default async function ToursPage() {
         <div className="layout">
           <SectionHeading
             eyebrow="Browse and compare"
-            title="Beautifully clear itineraries, warm guidance, no guesswork."
-            description="Choose a ready-made adventure or use these as a starting point for a more tailored Uganda journey."
+            title="Clear itineraries, strong visuals, and dedicated pages for every route."
+            description="Each tour is listed here and also has its own page so travellers can understand the experience before they enquire."
           />
           <div className="mt-10">
             <ToursBrowser tours={tours} />

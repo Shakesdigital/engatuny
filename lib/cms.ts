@@ -1,12 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { blogPosts, siteSettings, testimonials, tours } from "@/lib/site-data";
-import type {
-  BlogPost,
-  ContactSubmission,
-  SiteSettings,
-  Testimonial,
-  Tour,
-} from "@/types/content";
+import type { BlogPost, ContactSubmission, SiteSettings, Testimonial, Tour } from "@/types/content";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -21,6 +15,38 @@ function getSupabaseClient() {
   });
 }
 
+function mapTourRow(row: Record<string, unknown>): Tour {
+  return {
+    id: row.id as string | undefined,
+    slug: (row.slug as string) ?? "",
+    title: (row.title as string) ?? "",
+    tagline: (row.tagline as string) ?? "",
+    heroDescription: (row.hero_description as string) ?? (row.tagline as string) ?? "",
+    overview: (row.overview as string) ?? "",
+    price: (row.price as string) ?? "",
+    duration: (row.duration as string) ?? "",
+    durationDays: Number(row.duration_days ?? 0),
+    region: (row.region as string) ?? "",
+    type: (row.type as string) ?? "",
+    difficulty: ((row.difficulty as string) ?? "Moderate") as Tour["difficulty"],
+    maxTravellers: Number(row.max_travellers ?? 8),
+    image:
+      (row.featured_image_url as string) ??
+      "https://images.pexels.com/photos/34845589/pexels-photo-34845589.jpeg",
+    imageAlt: (row.image_alt as string) ?? `${row.title as string} featured image`,
+    enquirySubject: (row.enquiry_subject as string) ?? (row.title as string) ?? "",
+    routeDetails: (row.route_details as string) ?? "",
+    itinerary: Array.isArray(row.itinerary) ? (row.itinerary as string[]) : [],
+    highlights: Array.isArray(row.highlights) ? (row.highlights as string[]) : [],
+    idealFor: Array.isArray(row.ideal_for) ? (row.ideal_for as string[]) : [],
+    inclusions: Array.isArray(row.inclusions) ? (row.inclusions as string[]) : [],
+    accommodations: Array.isArray(row.accommodations) ? (row.accommodations as string[]) : [],
+    landscapeStory: (row.landscape_story as string) ?? "",
+    cultureStory: (row.culture_story as string) ?? "",
+    wildlifeStory: (row.wildlife_story as string) ?? "",
+  };
+}
+
 export async function getSiteSettings(): Promise<SiteSettings> {
   const supabase = getSupabaseClient();
 
@@ -28,15 +54,13 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     return siteSettings;
   }
 
-  const { data } = await supabase.from("settings").select("key,value,group_name");
+  const { data } = await supabase.from("settings").select("key,value");
 
   if (!data?.length) {
     return siteSettings;
   }
 
-  const mapped = Object.fromEntries(
-    data.map((row) => [row.key as string, row.value as string]),
-  );
+  const mapped = Object.fromEntries(data.map((row) => [row.key as string, row.value as string]));
 
   return {
     siteName: mapped.site_name ?? siteSettings.siteName,
@@ -46,6 +70,15 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     phone: mapped.contact_phone ?? siteSettings.phone,
     whatsApp: mapped.contact_whatsapp ?? siteSettings.whatsApp,
     office: mapped.office_address ?? siteSettings.office,
+    primaryColor: mapped.primary_color ?? siteSettings.primaryColor,
+    secondaryColor: mapped.secondary_color ?? siteSettings.secondaryColor,
+    accentColor: mapped.accent_color ?? siteSettings.accentColor,
+    surfaceColor: mapped.surface_color ?? siteSettings.surfaceColor,
+    logoPath: mapped.logo_path ?? siteSettings.logoPath,
+    brandMeaning: mapped.brand_meaning ?? siteSettings.brandMeaning,
+    brandStory: mapped.brand_story ?? siteSettings.brandStory,
+    founderKaramojaCommitment:
+      mapped.founder_karamoja_commitment ?? siteSettings.founderKaramojaCommitment,
   };
 }
 
@@ -66,26 +99,28 @@ export async function getTours(): Promise<Tour[]> {
     return tours;
   }
 
-  return data.map((tour) => ({
-    id: tour.id,
-    slug: tour.slug,
-    title: tour.title,
-    tagline: tour.tagline ?? "",
-    price: tour.price,
-    duration: tour.duration,
-    durationDays: tour.duration_days,
-    region: tour.region,
-    type: tour.type,
-    difficulty: tour.difficulty,
-    maxTravellers: tour.max_travellers,
-    image:
-      tour.featured_image_url ??
-      "https://images.pexels.com/photos/34845589/pexels-photo-34845589.jpeg",
-    imageAlt: `${tour.title} featured image`,
-    enquirySubject: tour.title,
-    itinerary: Array.isArray(tour.itinerary) ? tour.itinerary : [],
-    highlights: Array.isArray(tour.highlights) ? tour.highlights : [],
-  }));
+  return data.map((tourRow) => mapTourRow(tourRow));
+}
+
+export async function getTourBySlug(slug: string): Promise<Tour | null> {
+  const supabase = getSupabaseClient();
+
+  if (!supabase) {
+    return tours.find((tour) => tour.slug === slug) ?? null;
+  }
+
+  const { data } = await supabase
+    .from("tours")
+    .select("*")
+    .eq("slug", slug)
+    .eq("status", "published")
+    .maybeSingle();
+
+  if (!data) {
+    return tours.find((tour) => tour.slug === slug) ?? null;
+  }
+
+  return mapTourRow(data);
 }
 
 export async function getTestimonials(): Promise<Testimonial[]> {
@@ -105,12 +140,12 @@ export async function getTestimonials(): Promise<Testimonial[]> {
     return testimonials;
   }
 
-  return data.map((testimonial) => ({
-    id: testimonial.id,
-    name: testimonial.name,
-    homeCountry: testimonial.home_country,
-    trip: testimonial.trip,
-    quote: testimonial.quote,
+  return data.map((testimonialRow) => ({
+    id: testimonialRow.id,
+    name: testimonialRow.name,
+    homeCountry: testimonialRow.home_country,
+    trip: testimonialRow.trip,
+    quote: testimonialRow.quote,
   }));
 }
 
@@ -191,13 +226,19 @@ export async function getAdminSettings(): Promise<Record<string, string>> {
       contact_phone: siteSettings.phone,
       contact_whatsapp: siteSettings.whatsApp,
       office_address: siteSettings.office,
+      primary_color: siteSettings.primaryColor,
+      secondary_color: siteSettings.secondaryColor,
+      accent_color: siteSettings.accentColor,
+      surface_color: siteSettings.surfaceColor,
+      logo_path: siteSettings.logoPath,
+      brand_meaning: siteSettings.brandMeaning,
+      brand_story: siteSettings.brandStory,
+      founder_karamoja_commitment: siteSettings.founderKaramojaCommitment,
     };
   }
 
   const { data } = await supabase.from("settings").select("key,value");
-  const mapped = Object.fromEntries((data ?? []).map((row) => [row.key, row.value]));
-
-  return mapped;
+  return Object.fromEntries((data ?? []).map((row) => [row.key, row.value]));
 }
 
 export async function getContactSubmissions(): Promise<ContactSubmission[]> {

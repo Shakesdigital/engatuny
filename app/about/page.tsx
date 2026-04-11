@@ -2,17 +2,20 @@ import type { Metadata } from "next";
 import { CTASection } from "@/components/sections/cta-section";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { aboutValues, services, travellerReasons } from "@/lib/site-data";
+import { getSiteSettings } from "@/lib/cms";
 
 export const metadata: Metadata = {
   title: "About Us",
   description:
-    "Meet Engatuny Tours & Travel, a premium yet approachable Uganda-focused operator creating deeply authentic adventures with local guides.",
+    "Meet Engatuny Tours & Travel, a Uganda-focused operator whose lion-inspired brand stands for courage, care, and deeply rooted travel.",
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const settings = await getSiteSettings();
+
   return (
     <>
-      <section className="relative isolate overflow-hidden bg-forest-900 py-24 text-sand-50 md:py-32">
+      <section className="relative isolate overflow-hidden bg-brand-900 py-24 text-sand-50 md:py-32">
         <div className="absolute inset-0 opacity-20">
           <div
             className="h-full w-full bg-cover bg-center"
@@ -23,9 +26,9 @@ export default function AboutPage() {
           />
         </div>
         <div className="layout relative">
-          <p className="eyebrow text-gold-400">About Engatuny</p>
+          <p className="eyebrow text-brand-300">About Engatuny</p>
           <h1 className="mt-4 max-w-4xl font-heading text-5xl leading-tight md:text-6xl">
-            Discover Uganda with Engatuny — Your Trusted Guide to the Pearl of Africa.
+            A Uganda travel company shaped by the spirit of the lion.
           </h1>
         </div>
       </section>
@@ -34,28 +37,22 @@ export default function AboutPage() {
         <div className="layout grid gap-12 lg:grid-cols-[1.2fr_0.8fr]">
           <div className="prose-copy space-y-6 text-lg">
             <p>
-              Engatuny Tours &amp; Travel is your gateway to unforgettable
-              adventures across Uganda. We specialize in small-group, deeply
-              authentic experiences that connect you with Uganda&apos;s wild
-              landscapes, rich culture, and warm people.
+              Engatuny Tours &amp; Travel creates Uganda journeys that feel confident,
+              warm, and deeply rooted. The name Engatuny means lion, and that meaning
+              matters to us. It speaks to courage, watchfulness, and a calm kind of
+              leadership that protects the quality of the guest experience.
             </p>
             <p>
-              Our services include expertly guided wildlife safaris, gorilla
-              trekking, waterfall hikes, cultural immersions, adventure
-              activities, and carefully tailored journeys to Uganda&apos;s most
-              iconic and hidden destinations. Every trip is thoughtfully
-              designed for comfort, safety, and genuine immersion.
+              We guide wildlife safaris, gorilla trekking routes, waterfall escapes,
+              cultural journeys, and tailor-made travel across Uganda. Every itinerary
+              is built with route logic, local knowledge, and the intention to help
+              travellers feel the country rather than simply move through it.
             </p>
             <p>
-              What truly drives us is our goal: to inspire every traveller to
-              experience the real heartbeat of Uganda — not just as a tourist,
-              but as a welcomed guest in the Pearl of Africa. We create
-              journeys that awaken a sense of wonder, foster meaningful
-              connections with the land and its people, and leave you with
-              stories you&apos;ll carry forever. When you travel with Engatuny,
-              you don&apos;t just see Uganda — you feel it, live it, and become part
-              of its living story. This authentic connection is what inspires
-              thousands to choose us year after year.
+              {settings.brandStory} That is why our journeys feel both personal and
+              well-held: the romance of travel is there, but it is supported by steady
+              planning, honest pacing, and respect for the people and places that make
+              Uganda unforgettable.
             </p>
           </div>
           <div className="card overflow-hidden">
@@ -69,15 +66,34 @@ export default function AboutPage() {
       </section>
 
       <section className="section bg-sand-50">
+        <div className="layout grid gap-8 rounded-[2rem] bg-white p-8 shadow-[0_24px_60px_rgba(91,58,30,0.08)] lg:grid-cols-[0.85fr_1.15fr] lg:p-10">
+          <div>
+            <SectionHeading
+              eyebrow="Founder Commitment"
+              title="Karamoja is carried with pride in the way Engatuny travels."
+            />
+          </div>
+          <div className="space-y-5 text-base leading-8 text-charcoal-700">
+            <p>{settings.founderKaramojaCommitment}</p>
+            <p>
+              That commitment does not replace the wider Uganda story. It strengthens it.
+              It ensures that when travellers head north, they encounter Karamoja as a
+              living cultural landscape with beauty, dignity, and voices of its own.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="section bg-sand-50">
         <div className="layout">
           <SectionHeading
             eyebrow="Our Values"
-            title="A company culture shaped by the places we guide through."
+            title="A company culture shaped by courage, respect, and warm stewardship."
           />
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
             {aboutValues.map((value) => (
               <div key={value} className="card p-6 text-center">
-                <p className="font-heading text-3xl text-forest-900">{value}</p>
+                <p className="font-heading text-3xl text-brand-900">{value}</p>
               </div>
             ))}
           </div>
@@ -93,8 +109,10 @@ export default function AboutPage() {
           <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-5">
             {services.map((service) => (
               <article key={service.title} className="card p-6">
-                <div className="mb-4 text-3xl">{service.icon}</div>
-                <h2 className="font-heading text-2xl text-forest-900">{service.title}</h2>
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brand-900 text-lg font-bold text-sand-50">
+                  {service.icon}
+                </div>
+                <h2 className="font-heading text-2xl text-brand-900">{service.title}</h2>
                 <p className="mt-3 text-sm leading-7 text-charcoal-600">
                   {service.description}
                 </p>

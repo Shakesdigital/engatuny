@@ -10,7 +10,33 @@ const settingsSchema = z.object({
   contact_phone: z.string().min(6),
   contact_whatsapp: z.string().min(6),
   office_address: z.string().min(6),
+  primary_color: z.string().min(4),
+  secondary_color: z.string().min(4),
+  accent_color: z.string().min(4),
+  surface_color: z.string().min(4),
+  logo_path: z.string().min(2),
+  brand_meaning: z.string().min(10),
+  brand_story: z.string().min(10),
+  founder_karamoja_commitment: z.string().min(10),
 });
+
+const groupMap: Record<string, string> = {
+  site_name: "general",
+  tagline: "general",
+  site_description: "general",
+  contact_email: "contact",
+  contact_phone: "contact",
+  contact_whatsapp: "contact",
+  office_address: "contact",
+  primary_color: "branding",
+  secondary_color: "branding",
+  accent_color: "branding",
+  surface_color: "branding",
+  logo_path: "branding",
+  brand_meaning: "general",
+  brand_story: "general",
+  founder_karamoja_commitment: "general",
+};
 
 export async function POST(request: Request) {
   const admin = await requireAdminRoute();
@@ -23,11 +49,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid settings payload." }, { status: 400 });
   }
 
-  const payload = parsed.data;
-  const rows = Object.entries(payload).map(([key, value]) => ({
+  const rows = Object.entries(parsed.data).map(([key, value]) => ({
     key,
     value,
-    group_name: key.startsWith("contact_") || key === "office_address" ? "contact" : "general",
+    group_name: groupMap[key] ?? "general",
     is_public: true,
   }));
 

@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
@@ -18,33 +19,38 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   metadataBase: new URL("https://engatuny-tours.netlify.app"),
   title: {
-    default: "Engatuny Tours & Travel | Feel the Heartbeat of Uganda",
+    default: "Engatuny Tours & Travel | Follow the lion's path across Uganda",
     template: "%s | Engatuny Tours & Travel",
   },
   description:
-    "Warm, authentic Uganda adventures with small groups, local guides, and beautifully crafted journeys through wildlife, culture, waterfalls, and gorilla country.",
+    "Purposeful Uganda journeys shaped by local guides, warm hosting, and the proud spirit of the lion.",
   keywords: [
     "Uganda tours",
     "Uganda safaris",
+    "Kidepo safari",
+    "Karamoja cultural tours",
     "gorilla trekking Uganda",
-    "Murchison Falls tours",
-    "Jinja adventure tours",
     "Engatuny Tours & Travel",
   ],
+  icons: {
+    icon: "/engatuny-logo.png",
+    shortcut: "/engatuny-logo.png",
+    apple: "/engatuny-logo.png",
+  },
   openGraph: {
     title: "Engatuny Tours & Travel",
     description:
-      "Authentic Uganda journeys led by passionate local guides who know these landscapes by heart.",
+      "Lion-hearted Uganda journeys blending wildlife, culture, and grounded local hosting.",
     url: "https://engatuny-tours.netlify.app",
     siteName: "Engatuny Tours & Travel",
     locale: "en_US",
     type: "website",
     images: [
       {
-        url: "https://images.pexels.com/photos/17443313/pexels-photo-17443313.jpeg?auto=compress&cs=tinysrgb&w=1600",
+        url: "https://images.pexels.com/photos/15017212/pexels-photo-15017212.jpeg?auto=compress&cs=tinysrgb&w=1600",
         width: 1600,
         height: 900,
-        alt: "A lush tropical waterfall at sunrise, evoking the wild beauty of Uganda.",
+        alt: "Remote safari vehicle in a dry northern Uganda landscape.",
       },
     ],
   },
@@ -52,9 +58,9 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Engatuny Tours & Travel",
     description:
-      "Authentic Uganda adventures with local guides, small groups, and unforgettable stories.",
+      "Lion-hearted Uganda journeys blending wildlife, culture, and grounded local hosting.",
     images: [
-      "https://images.pexels.com/photos/17443313/pexels-photo-17443313.jpeg?auto=compress&cs=tinysrgb&w=1600",
+      "https://images.pexels.com/photos/15017212/pexels-photo-15017212.jpeg?auto=compress&cs=tinysrgb&w=1600",
     ],
   },
 };
@@ -68,8 +74,18 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
-      <body className="bg-sand-50 text-charcoal-900 antialiased">
-        <Shell siteName={settings.siteName}>{children}</Shell>
+      <body
+        className="bg-sand-50 text-charcoal-900 antialiased"
+        style={
+          {
+            "--brand-color-900": settings.primaryColor,
+            "--brand-color-700": settings.secondaryColor,
+            "--brand-color-500": settings.accentColor,
+            "--surface-color-50": settings.surfaceColor,
+          } as CSSProperties
+        }
+      >
+        <Shell settings={settings}>{children}</Shell>
       </body>
     </html>
   );

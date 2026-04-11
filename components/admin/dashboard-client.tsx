@@ -13,6 +13,7 @@ type AdminDashboardClientProps = {
   testimonials: Testimonial[];
   contactSubmissions: ContactSubmission[];
   adminEmail: string;
+  logoPath: string;
 };
 
 export function AdminDashboardClient({
@@ -22,6 +23,7 @@ export function AdminDashboardClient({
   testimonials,
   contactSubmissions,
   adminEmail,
+  logoPath,
 }: AdminDashboardClientProps) {
   const router = useRouter();
   const [message, setMessage] = useState<string | null>(null);
@@ -34,6 +36,14 @@ export function AdminDashboardClient({
     contact_phone: settings.contact_phone ?? "",
     contact_whatsapp: settings.contact_whatsapp ?? "",
     office_address: settings.office_address ?? "",
+    primary_color: settings.primary_color ?? "",
+    secondary_color: settings.secondary_color ?? "",
+    accent_color: settings.accent_color ?? "",
+    surface_color: settings.surface_color ?? "",
+    logo_path: settings.logo_path ?? "",
+    brand_meaning: settings.brand_meaning ?? "",
+    brand_story: settings.brand_story ?? "",
+    founder_karamoja_commitment: settings.founder_karamoja_commitment ?? "",
   });
   const [tourState, setTourState] = useState<Tour[]>(tours);
   const [blogState, setBlogState] = useState<BlogPost[]>(blogPosts);
@@ -76,40 +86,58 @@ export function AdminDashboardClient({
 
   return (
     <div className="space-y-10">
-      <section className="card p-8">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p className="eyebrow">Admin Dashboard</p>
-            <h1 className="mt-3 font-heading text-4xl text-forest-900">
-              Engatuny CMS
-            </h1>
-            <p className="mt-3 text-sm leading-7 text-charcoal-600">
-              Signed in as {adminEmail}. Manage the public website content directly from Supabase.
-            </p>
+      <section className="card overflow-hidden p-8">
+        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-4">
+            <img src={logoPath} alt="Engatuny logo" className="h-16 w-16 rounded-full object-cover" />
+            <div>
+              <p className="eyebrow">Admin Dashboard</p>
+              <h1 className="mt-2 font-heading text-4xl text-brand-900">
+                Engatuny Admin
+              </h1>
+              <p className="mt-2 text-sm leading-7 text-charcoal-600">
+                Signed in as {adminEmail}. Manage branding, tours, content, and enquiries.
+              </p>
+            </div>
           </div>
           <button type="button" onClick={handleLogout} className="btn-ghost">
             Sign Out
           </button>
         </div>
-        {message ? <p className="mt-5 text-sm font-semibold text-forest-800">{message}</p> : null}
+        {message ? <p className="mt-5 text-sm font-semibold text-brand-900">{message}</p> : null}
       </section>
 
       <section className="card p-8">
-        <h2 className="font-heading text-3xl text-forest-900">Site Settings</h2>
+        <h2 className="font-heading text-3xl text-brand-900">Site Settings</h2>
         <div className="mt-6 grid gap-5 md:grid-cols-2">
           {Object.entries(settingsState).map(([key, value]) => (
-            <label key={key} className={`block space-y-2 ${key === "site_description" || key === "office_address" ? "md:col-span-2" : ""}`}>
+            <label
+              key={key}
+              className={`block space-y-2 ${
+                key.includes("description") ||
+                key.includes("story") ||
+                key.includes("commitment") ||
+                key === "office_address" ||
+                key === "brand_meaning"
+                  ? "md:col-span-2"
+                  : ""
+              }`}
+            >
               <span className="text-sm font-semibold uppercase tracking-[0.12em] text-charcoal-500">
                 {key.replaceAll("_", " ")}
               </span>
-              {key === "site_description" || key === "office_address" ? (
+              {key.includes("description") ||
+              key.includes("story") ||
+              key.includes("commitment") ||
+              key === "office_address" ||
+              key === "brand_meaning" ? (
                 <textarea
                   rows={4}
                   value={value}
                   onChange={(event) =>
                     setSettingsState((current) => ({ ...current, [key]: event.target.value }))
                   }
-                  className="w-full rounded-[1rem] border border-forest-900/10 bg-white px-4 py-3 outline-none focus:border-forest-900"
+                  className="w-full rounded-[1rem] border border-brand-900/10 bg-white px-4 py-3 outline-none focus:border-brand-900"
                 />
               ) : (
                 <input
@@ -117,7 +145,7 @@ export function AdminDashboardClient({
                   onChange={(event) =>
                     setSettingsState((current) => ({ ...current, [key]: event.target.value }))
                   }
-                  className="w-full rounded-[1rem] border border-forest-900/10 bg-white px-4 py-3 outline-none focus:border-forest-900"
+                  className="w-full rounded-[1rem] border border-brand-900/10 bg-white px-4 py-3 outline-none focus:border-brand-900"
                 />
               )}
             </label>
@@ -127,10 +155,14 @@ export function AdminDashboardClient({
           type="button"
           className="btn-primary mt-6"
           onClick={() =>
-            request("/api/admin/settings", {
-              method: "POST",
-              body: JSON.stringify(settingsState),
-            }, "settings")
+            request(
+              "/api/admin/settings",
+              {
+                method: "POST",
+                body: JSON.stringify(settingsState),
+              },
+              "settings",
+            )
           }
         >
           {saving === "settings" ? "Saving..." : "Save Settings"}
@@ -139,7 +171,7 @@ export function AdminDashboardClient({
 
       <CrudSection
         title="Tours"
-        description="Edit pricing, itinerary text, media URLs, and publish state."
+        description="Manage independent tour landing pages, route copy, and itinerary detail."
         items={tourState}
         onAdd={() =>
           setTourState((current) => [
@@ -148,6 +180,8 @@ export function AdminDashboardClient({
               slug: "",
               title: "",
               tagline: "",
+              heroDescription: "",
+              overview: "",
               price: "",
               duration: "3 Days",
               durationDays: 3,
@@ -158,17 +192,26 @@ export function AdminDashboardClient({
               image: "https://images.pexels.com/photos/34845589/pexels-photo-34845589.jpeg",
               imageAlt: "",
               enquirySubject: "",
+              routeDetails: "",
               highlights: [],
               itinerary: [],
+              idealFor: [],
+              inclusions: [],
+              accommodations: [],
+              landscapeStory: "",
+              cultureStory: "",
+              wildlifeStory: "",
             },
           ])
         }
         renderItem={(tour, index) => (
-          <article key={tour.id ?? `tour-${index}`} className="rounded-[1.5rem] border border-forest-900/10 p-6">
+          <article key={tour.id ?? `tour-${index}`} className="rounded-[1.5rem] border border-brand-900/10 p-6">
             <CrudGrid>
               <Field label="Title" value={tour.title} onChange={(value) => updateItem(setTourState, index, { title: value })} />
               <Field label="Slug" value={tour.slug} onChange={(value) => updateItem(setTourState, index, { slug: value })} />
               <Field label="Tagline" value={tour.tagline} onChange={(value) => updateItem(setTourState, index, { tagline: value })} className="md:col-span-2" />
+              <TextAreaField label="Hero Description" value={tour.heroDescription} onChange={(value) => updateItem(setTourState, index, { heroDescription: value })} className="md:col-span-2" />
+              <TextAreaField label="Overview" value={tour.overview} onChange={(value) => updateItem(setTourState, index, { overview: value })} className="md:col-span-2" />
               <Field label="Price" value={tour.price} onChange={(value) => updateItem(setTourState, index, { price: value })} />
               <Field label="Duration" value={tour.duration} onChange={(value) => updateItem(setTourState, index, { duration: value })} />
               <Field label="Duration Days" type="number" value={String(tour.durationDays)} onChange={(value) => updateItem(setTourState, index, { durationDays: Number(value) })} />
@@ -177,10 +220,31 @@ export function AdminDashboardClient({
               <Field label="Type" value={tour.type} onChange={(value) => updateItem(setTourState, index, { type: value })} />
               <Field label="Difficulty" value={tour.difficulty} onChange={(value) => updateItem(setTourState, index, { difficulty: value as Tour["difficulty"] })} />
               <Field label="Image URL" value={tour.image} onChange={(value) => updateItem(setTourState, index, { image: value })} className="md:col-span-2" />
+              <Field label="Image Alt" value={tour.imageAlt} onChange={(value) => updateItem(setTourState, index, { imageAlt: value })} className="md:col-span-2" />
+              <Field label="Enquiry Subject" value={tour.enquirySubject} onChange={(value) => updateItem(setTourState, index, { enquirySubject: value })} className="md:col-span-2" />
+              <TextAreaField label="Route Details" value={tour.routeDetails} onChange={(value) => updateItem(setTourState, index, { routeDetails: value })} className="md:col-span-2" />
               <Field
                 label="Highlights"
                 value={tour.highlights.join(", ")}
                 onChange={(value) => updateItem(setTourState, index, { highlights: splitCommaList(value) })}
+                className="md:col-span-2"
+              />
+              <Field
+                label="Ideal For"
+                value={tour.idealFor.join(", ")}
+                onChange={(value) => updateItem(setTourState, index, { idealFor: splitCommaList(value) })}
+                className="md:col-span-2"
+              />
+              <Field
+                label="Inclusions"
+                value={tour.inclusions.join(", ")}
+                onChange={(value) => updateItem(setTourState, index, { inclusions: splitCommaList(value) })}
+                className="md:col-span-2"
+              />
+              <Field
+                label="Accommodation Options"
+                value={tour.accommodations.join(", ")}
+                onChange={(value) => updateItem(setTourState, index, { accommodations: splitCommaList(value) })}
                 className="md:col-span-2"
               />
               <TextAreaField
@@ -189,16 +253,23 @@ export function AdminDashboardClient({
                 onChange={(value) => updateItem(setTourState, index, { itinerary: splitLineList(value) })}
                 className="md:col-span-2"
               />
+              <TextAreaField label="Landscape Story" value={tour.landscapeStory} onChange={(value) => updateItem(setTourState, index, { landscapeStory: value })} className="md:col-span-2" />
+              <TextAreaField label="Culture Story" value={tour.cultureStory} onChange={(value) => updateItem(setTourState, index, { cultureStory: value })} className="md:col-span-2" />
+              <TextAreaField label="Wildlife Story" value={tour.wildlifeStory} onChange={(value) => updateItem(setTourState, index, { wildlifeStory: value })} className="md:col-span-2" />
             </CrudGrid>
             <div className="mt-5 flex flex-wrap gap-3">
               <button
                 type="button"
                 className="btn-primary"
                 onClick={() =>
-                  request("/api/admin/tours", {
-                    method: "POST",
-                    body: JSON.stringify({ ...tour, status: "published" }),
-                  }, `tour-${index}`)
+                  request(
+                    "/api/admin/tours",
+                    {
+                      method: "POST",
+                      body: JSON.stringify({ ...tour, status: "published" }),
+                    },
+                    `tour-${index}`,
+                  )
                 }
               >
                 {saving === `tour-${index}` ? "Saving..." : "Save Tour"}
@@ -237,7 +308,7 @@ export function AdminDashboardClient({
           ])
         }
         renderItem={(post, index) => (
-          <article key={post.id ?? `post-${index}`} className="rounded-[1.5rem] border border-forest-900/10 p-6">
+          <article key={post.id ?? `post-${index}`} className="rounded-[1.5rem] border border-brand-900/10 p-6">
             <CrudGrid>
               <Field label="Title" value={post.title} onChange={(value) => updateItem(setBlogState, index, { title: value })} />
               <Field label="Slug" value={post.slug} onChange={(value) => updateItem(setBlogState, index, { slug: value })} />
@@ -257,10 +328,14 @@ export function AdminDashboardClient({
                 type="button"
                 className="btn-primary"
                 onClick={() =>
-                  request("/api/admin/blog-posts", {
-                    method: "POST",
-                    body: JSON.stringify({ ...post, status: "published" }),
-                  }, `post-${index}`)
+                  request(
+                    "/api/admin/blog-posts",
+                    {
+                      method: "POST",
+                      body: JSON.stringify({ ...post, status: "published" }),
+                    },
+                    `post-${index}`,
+                  )
                 }
               >
                 {saving === `post-${index}` ? "Saving..." : "Save Post"}
@@ -292,7 +367,7 @@ export function AdminDashboardClient({
           ])
         }
         renderItem={(testimonial, index) => (
-          <article key={testimonial.id ?? `testimonial-${index}`} className="rounded-[1.5rem] border border-forest-900/10 p-6">
+          <article key={testimonial.id ?? `testimonial-${index}`} className="rounded-[1.5rem] border border-brand-900/10 p-6">
             <CrudGrid>
               <Field label="Name" value={testimonial.name} onChange={(value) => updateItem(setTestimonialState, index, { name: value })} />
               <Field label="Home Country" value={testimonial.homeCountry} onChange={(value) => updateItem(setTestimonialState, index, { homeCountry: value })} />
@@ -304,10 +379,14 @@ export function AdminDashboardClient({
                 type="button"
                 className="btn-primary"
                 onClick={() =>
-                  request("/api/admin/testimonials", {
-                    method: "POST",
-                    body: JSON.stringify({ ...testimonial, status: "published" }),
-                  }, `testimonial-${index}`)
+                  request(
+                    "/api/admin/testimonials",
+                    {
+                      method: "POST",
+                      body: JSON.stringify({ ...testimonial, status: "published" }),
+                    },
+                    `testimonial-${index}`,
+                  )
                 }
               >
                 {saving === `testimonial-${index}` ? "Saving..." : "Save Testimonial"}
@@ -329,31 +408,34 @@ export function AdminDashboardClient({
       />
 
       <section className="card p-8">
-        <h2 className="font-heading text-3xl text-forest-900">Contact Enquiries</h2>
+        <h2 className="font-heading text-3xl text-brand-900">Contact Enquiries</h2>
         <div className="mt-6 space-y-4">
           {contactSubmissions.length ? (
             contactSubmissions.map((submission) => (
-              <article key={submission.id} className="rounded-[1.5rem] border border-forest-900/10 p-5">
+              <article key={submission.id} className="rounded-[1.5rem] border border-brand-900/10 p-5">
                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                   <div>
-                    <p className="text-lg font-semibold text-charcoal-900">
-                      {submission.name}
-                    </p>
+                    <p className="text-lg font-semibold text-charcoal-900">{submission.name}</p>
                     <p className="text-sm text-charcoal-600">
-                      {submission.email} {submission.preferredTour ? `• ${submission.preferredTour}` : ""}
+                      {submission.email}
+                      {submission.preferredTour ? ` • ${submission.preferredTour}` : ""}
                     </p>
                     <p className="mt-3 text-sm leading-7 text-charcoal-700">
                       {submission.message}
                     </p>
                   </div>
                   <select
-                    className="rounded-full border border-forest-900/10 bg-white px-4 py-2 text-sm font-semibold text-charcoal-700"
+                    className="rounded-full border border-brand-900/10 bg-white px-4 py-2 text-sm font-semibold text-charcoal-700"
                     value={submission.status}
                     onChange={(event) =>
-                      request("/api/admin/contact-submissions", {
-                        method: "PATCH",
-                        body: JSON.stringify({ id: submission.id, status: event.target.value }),
-                      }, `submission-${submission.id}`)
+                      request(
+                        "/api/admin/contact-submissions",
+                        {
+                          method: "PATCH",
+                          body: JSON.stringify({ id: submission.id, status: event.target.value }),
+                        },
+                        `submission-${submission.id}`,
+                      )
                     }
                   >
                     <option value="new">new</option>
@@ -391,7 +473,7 @@ function CrudSection<T>({
     <section className="card p-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="font-heading text-3xl text-forest-900">{title}</h2>
+          <h2 className="font-heading text-3xl text-brand-900">{title}</h2>
           <p className="mt-2 text-sm leading-7 text-charcoal-600">{description}</p>
         </div>
         <button type="button" className="btn-ghost" onClick={onAdd}>
@@ -429,7 +511,7 @@ function Field({
         type={type}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-[1rem] border border-forest-900/10 bg-white px-4 py-3 outline-none focus:border-forest-900"
+        className="w-full rounded-[1rem] border border-brand-900/10 bg-white px-4 py-3 outline-none focus:border-brand-900"
       />
     </label>
   );
@@ -455,7 +537,7 @@ function TextAreaField({
         rows={6}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-[1rem] border border-forest-900/10 bg-white px-4 py-3 outline-none focus:border-forest-900"
+        className="w-full rounded-[1rem] border border-brand-900/10 bg-white px-4 py-3 outline-none focus:border-brand-900"
       />
     </label>
   );

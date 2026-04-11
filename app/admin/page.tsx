@@ -11,10 +11,10 @@ export default async function AdminPage() {
       <section className="section">
         <div className="layout max-w-3xl">
           <div className="card p-8">
-            <h1 className="font-heading text-4xl text-forest-900">Supabase is not configured</h1>
+            <h1 className="font-heading text-4xl text-brand-900">Supabase is not configured</h1>
             <p className="mt-4 text-base leading-8 text-charcoal-600">
               Add the required environment variables, run the Supabase migrations,
-              and then sign in as an admin to manage the CMS.
+              and then sign in as an admin to manage the website.
             </p>
           </div>
         </div>
@@ -33,9 +33,7 @@ export default async function AdminPage() {
       supabase.from("contact_submissions").select("*").order("created_at", { ascending: false }),
     ]);
 
-  const settings = Object.fromEntries(
-    (settingsResponse.data ?? []).map((row) => [row.key, row.value]),
-  );
+  const settings = Object.fromEntries((settingsResponse.data ?? []).map((row) => [row.key, row.value]));
 
   const liveTours =
     toursResponse.data?.map((tour) => ({
@@ -43,6 +41,8 @@ export default async function AdminPage() {
       slug: tour.slug,
       title: tour.title,
       tagline: tour.tagline ?? "",
+      heroDescription: tour.hero_description ?? tour.tagline ?? "",
+      overview: tour.overview ?? "",
       price: tour.price,
       duration: tour.duration,
       durationDays: tour.duration_days,
@@ -51,10 +51,17 @@ export default async function AdminPage() {
       difficulty: tour.difficulty,
       maxTravellers: tour.max_travellers,
       image: tour.featured_image_url ?? "",
-      imageAlt: "",
-      enquirySubject: tour.title,
-      itinerary: Array.isArray(tour.itinerary) ? tour.itinerary : [],
+      imageAlt: tour.image_alt ?? "",
+      enquirySubject: tour.enquiry_subject ?? tour.title,
+      routeDetails: tour.route_details ?? "",
       highlights: Array.isArray(tour.highlights) ? tour.highlights : [],
+      itinerary: Array.isArray(tour.itinerary) ? tour.itinerary : [],
+      idealFor: Array.isArray(tour.ideal_for) ? tour.ideal_for : [],
+      inclusions: Array.isArray(tour.inclusions) ? tour.inclusions : [],
+      accommodations: Array.isArray(tour.accommodations) ? tour.accommodations : [],
+      landscapeStory: tour.landscape_story ?? "",
+      cultureStory: tour.culture_story ?? "",
+      wildlifeStory: tour.wildlife_story ?? "",
     })) ?? tours;
 
   const liveBlogPosts =
@@ -102,12 +109,22 @@ export default async function AdminPage() {
             contact_phone: settings.contact_phone ?? siteSettings.phone,
             contact_whatsapp: settings.contact_whatsapp ?? siteSettings.whatsApp,
             office_address: settings.office_address ?? siteSettings.office,
+            primary_color: settings.primary_color ?? siteSettings.primaryColor,
+            secondary_color: settings.secondary_color ?? siteSettings.secondaryColor,
+            accent_color: settings.accent_color ?? siteSettings.accentColor,
+            surface_color: settings.surface_color ?? siteSettings.surfaceColor,
+            logo_path: settings.logo_path ?? siteSettings.logoPath,
+            brand_meaning: settings.brand_meaning ?? siteSettings.brandMeaning,
+            brand_story: settings.brand_story ?? siteSettings.brandStory,
+            founder_karamoja_commitment:
+              settings.founder_karamoja_commitment ?? siteSettings.founderKaramojaCommitment,
           }}
           tours={liveTours}
           blogPosts={liveBlogPosts}
           testimonials={liveTestimonials}
           contactSubmissions={submissions}
           adminEmail={user.email ?? "admin"}
+          logoPath={settings.logo_path ?? siteSettings.logoPath}
         />
       </div>
     </section>

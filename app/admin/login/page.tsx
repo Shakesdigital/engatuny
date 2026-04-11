@@ -12,11 +12,16 @@ export default function AdminLoginPage() {
         {configured ? (
           <AdminLoginForm />
         ) : (
-          <div className="card p-8">
-            <h1 className="font-heading text-4xl text-forest-900">CMS Setup Required</h1>
+          <div className="card p-8 text-center">
+            <img
+              src="/engatuny-logo.png"
+              alt="Engatuny logo"
+              className="mx-auto h-20 w-20 rounded-full object-cover"
+            />
+            <h1 className="mt-5 font-heading text-4xl text-brand-900">Engatuny Admin</h1>
             <p className="mt-4 text-base leading-8 text-charcoal-600">
               Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-              to activate the backend CMS and admin login.
+              to activate the admin login.
             </p>
           </div>
         )}

@@ -14,7 +14,7 @@ export function CTASection({
   return (
     <section className="section">
       <div className="layout">
-        <div className="overflow-hidden rounded-[2rem] bg-forest-900 px-8 py-12 text-sand-50 shadow-[0_30px_90px_rgba(10,61,51,0.22)] md:px-12 md:py-16">
+        <div className="overflow-hidden rounded-[2rem] bg-brand-900 px-8 py-12 text-sand-50 shadow-[0_30px_90px_rgba(91,58,30,0.22)] md:px-12 md:py-16">
           <div className="grid gap-8 md:grid-cols-[1.2fr_0.8fr] md:items-center">
             <div>
               <p className="eyebrow text-gold-400">Start planning</p>
