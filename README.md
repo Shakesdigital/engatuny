@@ -18,6 +18,7 @@ A modern, mobile-first Uganda travel website for Engatuny Tours & Travel, built 
 - Contact enquiry form with optional Supabase persistence
 - SEO metadata and sitemap
 - Supabase schema for settings, pages, modules, tours, blog posts, testimonials, and contact submissions
+- Supabase-authenticated admin CMS at `/admin`
 - Seed content for Engatuny tours, testimonials, and blog articles
 
 ## Run locally
@@ -50,7 +51,12 @@ The website will still run without these values because it falls back to local s
 
 ## Supabase setup
 
-Run the migration in [supabase/migrations/202604110001_engatuny_cms.sql](/E:/Engatuny/supabase/migrations/202604110001_engatuny_cms.sql).
+Run the migrations in order:
+
+- [202604110001_engatuny_cms.sql](/E:/Engatuny/supabase/migrations/202604110001_engatuny_cms.sql)
+- [202604110002_admin_auth.sql](/E:/Engatuny/supabase/migrations/202604110002_admin_auth.sql)
+- [202604110003_public_contact_insert.sql](/E:/Engatuny/supabase/migrations/202604110003_public_contact_insert.sql)
+- [202604110004_fix_seed_copy.sql](/E:/Engatuny/supabase/migrations/202604110004_fix_seed_copy.sql)
 
 This migration creates:
 
@@ -58,6 +64,7 @@ This migration creates:
 - `pages`
 - `modules`
 - `page_modules`
+- `profiles`
 - `tours`
 - `testimonials`
 - `blog_posts`
@@ -67,7 +74,30 @@ It also adds:
 
 - `updated_at` triggers
 - public read RLS policies for published content
+- admin write policies backed by `profiles.is_admin`
+- automatic profile creation for new Supabase Auth users
 - starter content for site settings, tours, testimonials, and blog posts
+
+## Activate the CMS
+
+1. Create a user in Supabase Auth using email/password.
+2. Promote that user to admin in SQL:
+
+```sql
+update public.profiles
+set is_admin = true
+where email = 'your-admin-email@example.com';
+```
+
+3. Visit `/admin/login` and sign in with that account.
+
+The `/admin` area lets you manage:
+
+- site settings
+- tours
+- blog posts
+- testimonials
+- contact enquiry statuses
 
 ## Deploy to Netlify
 
@@ -97,5 +127,6 @@ The site uses free Pexels-hosted images. Review the current license before produ
 
 ## Notes
 
-- The contact API route validates input and inserts into Supabase only when the required environment variables are available.
-- The current CMS layer is intentionally lean and public-site focused. It is structured so a role-aware admin dashboard can be added on top without reshaping the schema.
+- The public website now reads from Supabase when environment variables are present and falls back to local seed data only when Supabase is not configured.
+- The contact API route validates input and stores submissions in Supabase using the anon key or service role key when available.
+- The current CMS layer is intentionally lean and public-site focused, with a simple admin dashboard rather than a heavy custom back office.

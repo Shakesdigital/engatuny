@@ -1,7 +1,5 @@
 import {
   galleryMoments,
-  homeFeaturedTours,
-  testimonials,
   trustMetrics,
   whyChooseEngatuny,
 } from "@/lib/site-data";
@@ -10,8 +8,12 @@ import { PhotoGrid } from "@/components/sections/photo-grid";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { TestimonialCarousel } from "@/components/ui/testimonial-carousel";
 import { TourCard } from "@/components/ui/tour-card";
+import { getTestimonials, getTours } from "@/lib/cms";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [tours, testimonials] = await Promise.all([getTours(), getTestimonials()]);
+  const featuredTours = tours.slice(0, 4);
+
   return (
     <>
       <section className="relative isolate flex min-h-[92vh] items-end overflow-hidden">
@@ -99,7 +101,7 @@ export default function HomePage() {
             </a>
           </div>
           <div className="mt-10 grid gap-6 lg:grid-cols-2">
-            {homeFeaturedTours.map((tour) => (
+            {featuredTours.map((tour) => (
               <TourCard key={tour.slug} tour={tour} />
             ))}
           </div>

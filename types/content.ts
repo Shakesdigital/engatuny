@@ -1,7 +1,7 @@
 export type Difficulty = "Easy" | "Moderate" | "Active";
 
 export type Tour = {
-  id: string;
+  id?: string;
   slug: string;
   title: string;
   tagline: string;
@@ -20,6 +20,7 @@ export type Tour = {
 };
 
 export type Testimonial = {
+  id?: string;
   name: string;
   homeCountry: string;
   quote: string;
@@ -27,6 +28,7 @@ export type Testimonial = {
 };
 
 export type BlogPost = {
+  id?: string;
   slug: string;
   title: string;
   excerpt: string;
@@ -52,4 +54,14 @@ export type SiteSettings = {
   phone: string;
   whatsApp: string;
   office: string;
+};
+
+export type ContactSubmission = {
+  id: string;
+  name: string;
+  email: string;
+  preferredTour: string | null;
+  message: string;
+  status: "new" | "contacted" | "closed";
+  createdAt: string;
 };

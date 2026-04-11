@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import { Footer } from "@/components/site/footer";
-import { Header } from "@/components/site/header";
+import { Shell } from "@/components/site/shell";
 import { getSiteSettings } from "@/lib/cms";
 
 const inter = Inter({
@@ -70,9 +69,7 @@ export default async function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body className="bg-sand-50 text-charcoal-900 antialiased">
-        <Header siteName={settings.siteName} />
-        <main>{children}</main>
-        <Footer />
+        <Shell siteName={settings.siteName}>{children}</Shell>
       </body>
     </html>
   );
