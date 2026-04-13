@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { CTASection } from "@/components/sections/cta-section";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { aboutValues, services, travellerReasons } from "@/lib/site-data";
-import { getSiteSettings } from "@/lib/cms";
+import { getPageBySlug, getSiteSettings } from "@/lib/cms";
+import { getPageList, getPageObjectList, getPageText } from "@/lib/page-utils";
 
 export const metadata: Metadata = {
   title: "About Us",
@@ -11,7 +12,27 @@ export const metadata: Metadata = {
 };
 
 export default async function AboutPage() {
-  const settings = await getSiteSettings();
+  const [settings, page] = await Promise.all([getSiteSettings(), getPageBySlug("about")]);
+  const introParagraphs = getPageList(page, "introParagraphs", [
+    "Engatuny Tours & Travel creates Uganda journeys that feel confident, warm, and deeply rooted. The name Engatuny means lion, and that meaning matters to us. It speaks to courage, watchfulness, and a calm kind of leadership that protects the quality of the guest experience.",
+    "We guide wildlife safaris, gorilla trekking routes, waterfall escapes, cultural journeys, and tailor-made travel across Uganda. Every itinerary is built with route logic, local knowledge, and the intention to help travellers feel the country rather than simply move through it.",
+    `${settings.brandStory} That is why our journeys feel both personal and well-held: the romance of travel is there, but it is supported by steady planning, honest pacing, and respect for the people and places that make Uganda unforgettable.`,
+  ]);
+  const founderParagraphs = getPageList(page, "founderParagraphs", [
+    settings.founderKaramojaCommitment,
+    "That commitment does not replace the wider Uganda story. It strengthens it. It ensures that when travellers head north, they encounter Karamoja as a living cultural landscape with beauty, dignity, and voices of its own.",
+  ]);
+  const values = getPageList(page, "values", aboutValues);
+  const serviceCards = getPageObjectList(
+    page,
+    "services",
+    services.map((item) => ({
+      icon: item.icon,
+      title: item.title,
+      description: item.description,
+    })),
+  );
+  const reasons = getPageList(page, "reasons", travellerReasons);
 
   return (
     <>
@@ -26,9 +47,11 @@ export default async function AboutPage() {
           />
         </div>
         <div className="layout relative">
-          <p className="eyebrow text-brand-300">About Engatuny</p>
+          <p className="eyebrow text-brand-300">
+            {getPageText(page, "heroEyebrow", "About Engatuny")}
+          </p>
           <h1 className="mt-4 max-w-4xl font-heading text-5xl leading-tight md:text-6xl">
-            A Uganda travel company shaped by the spirit of the lion.
+            {getPageText(page, "heroTitle", "A Uganda travel company shaped by the spirit of the lion.")}
           </h1>
         </div>
       </section>
@@ -36,24 +59,9 @@ export default async function AboutPage() {
       <section className="section bg-white">
         <div className="layout grid gap-12 lg:grid-cols-[1.2fr_0.8fr]">
           <div className="prose-copy space-y-6 text-lg">
-            <p>
-              Engatuny Tours &amp; Travel creates Uganda journeys that feel confident,
-              warm, and deeply rooted. The name Engatuny means lion, and that meaning
-              matters to us. It speaks to courage, watchfulness, and a calm kind of
-              leadership that protects the quality of the guest experience.
-            </p>
-            <p>
-              We guide wildlife safaris, gorilla trekking routes, waterfall escapes,
-              cultural journeys, and tailor-made travel across Uganda. Every itinerary
-              is built with route logic, local knowledge, and the intention to help
-              travellers feel the country rather than simply move through it.
-            </p>
-            <p>
-              {settings.brandStory} That is why our journeys feel both personal and
-              well-held: the romance of travel is there, but it is supported by steady
-              planning, honest pacing, and respect for the people and places that make
-              Uganda unforgettable.
-            </p>
+            {introParagraphs.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
           </div>
           <div className="card overflow-hidden">
             <img
@@ -69,17 +77,18 @@ export default async function AboutPage() {
         <div className="layout grid gap-8 rounded-[2rem] bg-white p-8 shadow-[0_24px_60px_rgba(91,58,30,0.08)] lg:grid-cols-[0.85fr_1.15fr] lg:p-10">
           <div>
             <SectionHeading
-              eyebrow="Founder Commitment"
-              title="Karamoja is carried with pride in the way Engatuny travels."
+              eyebrow={getPageText(page, "founderEyebrow", "Founder Commitment")}
+              title={getPageText(
+                page,
+                "founderTitle",
+                "Karamoja is carried with pride in the way Engatuny travels.",
+              )}
             />
           </div>
           <div className="space-y-5 text-base leading-8 text-charcoal-700">
-            <p>{settings.founderKaramojaCommitment}</p>
-            <p>
-              That commitment does not replace the wider Uganda story. It strengthens it.
-              It ensures that when travellers head north, they encounter Karamoja as a
-              living cultural landscape with beauty, dignity, and voices of its own.
-            </p>
+            {founderParagraphs.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
           </div>
         </div>
       </section>
@@ -87,11 +96,15 @@ export default async function AboutPage() {
       <section className="section bg-sand-50">
         <div className="layout">
           <SectionHeading
-            eyebrow="Our Values"
-            title="A company culture shaped by courage, respect, and warm stewardship."
+            eyebrow={getPageText(page, "valuesEyebrow", "Our Values")}
+            title={getPageText(
+              page,
+              "valuesTitle",
+              "A company culture shaped by courage, respect, and warm stewardship.",
+            )}
           />
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
-            {aboutValues.map((value) => (
+            {values.map((value) => (
               <div key={value} className="card p-6 text-center">
                 <p className="font-heading text-3xl text-brand-900">{value}</p>
               </div>
@@ -103,11 +116,15 @@ export default async function AboutPage() {
       <section className="section bg-white">
         <div className="layout">
           <SectionHeading
-            eyebrow="Our Services"
-            title="What we craft for travellers seeking the real Uganda."
+            eyebrow={getPageText(page, "servicesEyebrow", "Our Services")}
+            title={getPageText(
+              page,
+              "servicesTitle",
+              "What we craft for travellers seeking the real Uganda.",
+            )}
           />
           <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-5">
-            {services.map((service) => (
+            {serviceCards.map((service) => (
               <article key={service.title} className="card p-6">
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brand-900 text-lg font-bold text-sand-50">
                   {service.icon}
@@ -125,11 +142,15 @@ export default async function AboutPage() {
       <section className="section bg-sand-50">
         <div className="layout grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
           <SectionHeading
-            eyebrow="Why Travellers Choose Engatuny"
-            title="The details that turn first-time guests into returning advocates."
+            eyebrow={getPageText(page, "reasonsEyebrow", "Why Travellers Choose Engatuny")}
+            title={getPageText(
+              page,
+              "reasonsTitle",
+              "The details that turn first-time guests into returning advocates.",
+            )}
           />
           <div className="grid gap-4">
-            {travellerReasons.map((reason) => (
+            {reasons.map((reason) => (
               <div key={reason} className="card p-6">
                 <p className="text-base leading-8 text-charcoal-700">{reason}</p>
               </div>
@@ -139,10 +160,24 @@ export default async function AboutPage() {
       </section>
 
       <CTASection
-        title="Let us shape your Uganda story around what matters most to you."
-        description="Tell us the pace you want, the places calling you, and the level of comfort you prefer. We will take it from there."
-        primaryAction={{ href: "/contact", label: "Start Planning" }}
-        secondaryAction={{ href: "/tours", label: "See Our Tours" }}
+        title={getPageText(
+          page,
+          "ctaTitle",
+          "Let us shape your Uganda story around what matters most to you.",
+        )}
+        description={getPageText(
+          page,
+          "ctaDescription",
+          "Tell us the pace you want, the places calling you, and the level of comfort you prefer. We will take it from there.",
+        )}
+        primaryAction={{
+          href: getPageText(page, "ctaPrimaryHref", "/contact"),
+          label: getPageText(page, "ctaPrimaryLabel", "Start Planning"),
+        }}
+        secondaryAction={{
+          href: getPageText(page, "ctaSecondaryHref", "/tours"),
+          label: getPageText(page, "ctaSecondaryLabel", "See Our Tours"),
+        }}
       />
     </>
   );

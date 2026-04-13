@@ -1,4 +1,5 @@
 import { AdminDashboardClient } from "@/components/admin/dashboard-client";
+import { defaultPagesBySlug } from "@/lib/page-content";
 import { requireAdmin } from "@/lib/auth";
 import { blogPosts, siteSettings, testimonials, tours } from "@/lib/site-data";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -24,16 +25,39 @@ export default async function AdminPage() {
 
   const { supabase, user } = await requireAdmin();
 
-  const [settingsResponse, toursResponse, blogResponse, testimonialsResponse, contactResponse] =
-    await Promise.all([
-      supabase.from("settings").select("key,value"),
-      supabase.from("tours").select("*").order("created_at", { ascending: true }),
-      supabase.from("blog_posts").select("*").order("published_at", { ascending: false }),
-      supabase.from("testimonials").select("*").order("created_at", { ascending: false }),
-      supabase.from("contact_submissions").select("*").order("created_at", { ascending: false }),
-    ]);
+  const [
+    settingsResponse,
+    pagesResponse,
+    toursResponse,
+    blogResponse,
+    testimonialsResponse,
+    contactResponse,
+  ] = await Promise.all([
+    supabase.from("settings").select("key,value"),
+    supabase.from("pages").select("*").order("slug", { ascending: true }),
+    supabase.from("tours").select("*").order("created_at", { ascending: true }),
+    supabase.from("blog_posts").select("*").order("published_at", { ascending: false }),
+    supabase.from("testimonials").select("*").order("created_at", { ascending: false }),
+    supabase.from("contact_submissions").select("*").order("created_at", { ascending: false }),
+  ]);
 
   const settings = Object.fromEntries((settingsResponse.data ?? []).map((row) => [row.key, row.value]));
+
+  const livePages = (pagesResponse.data ?? []).map((page) => {
+    const fallback = defaultPagesBySlug[page.slug] ?? defaultPagesBySlug.home;
+
+    return {
+      id: page.id,
+      slug: page.slug,
+      title: page.title ?? fallback.title,
+      excerpt: page.excerpt ?? fallback.excerpt,
+      status: page.status ?? fallback.status,
+      metaTitle: page.meta_title ?? fallback.metaTitle,
+      metaDescription: page.meta_description ?? fallback.metaDescription,
+      content:
+        page.content && typeof page.content === "object" ? page.content : fallback.content,
+    };
+  });
 
   const liveTours =
     toursResponse.data?.map((tour) => ({
@@ -119,6 +143,7 @@ export default async function AdminPage() {
             founder_karamoja_commitment:
               settings.founder_karamoja_commitment ?? siteSettings.founderKaramojaCommitment,
           }}
+          pages={livePages.length ? livePages : Object.values(defaultPagesBySlug)}
           tours={liveTours}
           blogPosts={liveBlogPosts}
           testimonials={liveTestimonials}

@@ -4,10 +4,18 @@ import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
-import type { BlogPost, ContactSubmission, Testimonial, Tour } from "@/types/content";
+import type {
+  BlogPost,
+  CmsPage,
+  ContactSubmission,
+  PageContentValue,
+  Testimonial,
+  Tour,
+} from "@/types/content";
 
 type AdminDashboardClientProps = {
   settings: Record<string, string>;
+  pages: CmsPage[];
   tours: Tour[];
   blogPosts: BlogPost[];
   testimonials: Testimonial[];
@@ -17,57 +25,117 @@ type AdminDashboardClientProps = {
 };
 
 type AdminTab = "landing-pages" | "tours" | "blog" | "submissions" | "settings";
+type PageFieldType = "text" | "textarea" | "list" | "cards";
+type PageField = { key: string; label: string; type: PageFieldType; rows?: number; className?: string };
 
-const landingPageCards = [
-  {
-    title: "Home Page",
-    href: "/",
-    description: "Homepage story, brand promise, and featured social proof.",
-    managedIn: "Landing Pages",
+const pageEditorConfig: Record<string, { summary: string; fields: PageField[] }> = {
+  home: {
+    summary: "Hero, trust bar, homepage story sections, featured tours, gallery, and CTA.",
+    fields: [
+      { key: "heroEyebrow", label: "Hero Eyebrow", type: "text" },
+      { key: "heroTitle", label: "Hero Title", type: "textarea", rows: 3, className: "md:col-span-2" },
+      { key: "heroDescription", label: "Hero Description", type: "textarea", rows: 4, className: "md:col-span-2" },
+      { key: "heroSubtitle", label: "Hero Logo Subtitle", type: "text" },
+      { key: "primaryCtaLabel", label: "Primary CTA Label", type: "text" },
+      { key: "primaryCtaHref", label: "Primary CTA Link", type: "text" },
+      { key: "secondaryCtaLabel", label: "Secondary CTA Label", type: "text" },
+      { key: "secondaryCtaHref", label: "Secondary CTA Link", type: "text" },
+      { key: "trustMetrics", label: "Trust Metrics", type: "list", className: "md:col-span-2" },
+      { key: "whyChooseEyebrow", label: "Why Choose Eyebrow", type: "text" },
+      { key: "whyChooseTitle", label: "Why Choose Title", type: "textarea", rows: 3, className: "md:col-span-2" },
+      { key: "whyChooseDescription", label: "Why Choose Description", type: "textarea", rows: 4, className: "md:col-span-2" },
+      { key: "whyChooseCards", label: "Why Choose Cards", type: "cards", className: "md:col-span-2" },
+      { key: "founderEyebrow", label: "Founder Eyebrow", type: "text" },
+      { key: "founderTitle", label: "Founder Title", type: "textarea", rows: 3, className: "md:col-span-2" },
+      { key: "founderBody", label: "Founder Body", type: "textarea", rows: 4, className: "md:col-span-2" },
+      { key: "toursEyebrow", label: "Featured Tours Eyebrow", type: "text" },
+      { key: "toursTitle", label: "Featured Tours Title", type: "textarea", rows: 3, className: "md:col-span-2" },
+      { key: "toursDescription", label: "Featured Tours Description", type: "textarea", rows: 4, className: "md:col-span-2" },
+      { key: "guestStoriesEyebrow", label: "Guest Stories Eyebrow", type: "text" },
+      { key: "guestStoriesTitle", label: "Guest Stories Title", type: "textarea", rows: 3, className: "md:col-span-2" },
+      { key: "guestStoriesDescription", label: "Guest Stories Description", type: "textarea", rows: 4, className: "md:col-span-2" },
+      { key: "galleryEyebrow", label: "Gallery Eyebrow", type: "text" },
+      { key: "galleryTitle", label: "Gallery Title", type: "textarea", rows: 3, className: "md:col-span-2" },
+      { key: "ctaTitle", label: "Bottom CTA Title", type: "textarea", rows: 3, className: "md:col-span-2" },
+      { key: "ctaDescription", label: "Bottom CTA Description", type: "textarea", rows: 4, className: "md:col-span-2" },
+      { key: "ctaPrimaryLabel", label: "Bottom CTA Primary Label", type: "text" },
+      { key: "ctaPrimaryHref", label: "Bottom CTA Primary Link", type: "text" },
+      { key: "ctaSecondaryLabel", label: "Bottom CTA Secondary Label", type: "text" },
+      { key: "ctaSecondaryHref", label: "Bottom CTA Secondary Link", type: "text" },
+    ],
   },
-  {
-    title: "About Us",
-    href: "/about",
-    description: "Company story, Engatuny meaning, and founder commitment copy.",
-    managedIn: "Landing Pages",
+  about: {
+    summary: "About hero, story paragraphs, founder section, values, services, traveller reasons, and CTA.",
+    fields: [
+      { key: "heroEyebrow", label: "Hero Eyebrow", type: "text" },
+      { key: "heroTitle", label: "Hero Title", type: "textarea", rows: 3, className: "md:col-span-2" },
+      { key: "introParagraphs", label: "Intro Paragraphs", type: "list", className: "md:col-span-2" },
+      { key: "founderEyebrow", label: "Founder Eyebrow", type: "text" },
+      { key: "founderTitle", label: "Founder Title", type: "textarea", rows: 3, className: "md:col-span-2" },
+      { key: "founderParagraphs", label: "Founder Paragraphs", type: "list", className: "md:col-span-2" },
+      { key: "valuesEyebrow", label: "Values Eyebrow", type: "text" },
+      { key: "valuesTitle", label: "Values Title", type: "textarea", rows: 3, className: "md:col-span-2" },
+      { key: "values", label: "Values", type: "list", className: "md:col-span-2" },
+      { key: "servicesEyebrow", label: "Services Eyebrow", type: "text" },
+      { key: "servicesTitle", label: "Services Title", type: "textarea", rows: 3, className: "md:col-span-2" },
+      { key: "services", label: "Services", type: "cards", className: "md:col-span-2" },
+      { key: "reasonsEyebrow", label: "Reasons Eyebrow", type: "text" },
+      { key: "reasonsTitle", label: "Reasons Title", type: "textarea", rows: 3, className: "md:col-span-2" },
+      { key: "reasons", label: "Traveller Reasons", type: "list", className: "md:col-span-2" },
+      { key: "ctaTitle", label: "Bottom CTA Title", type: "textarea", rows: 3, className: "md:col-span-2" },
+      { key: "ctaDescription", label: "Bottom CTA Description", type: "textarea", rows: 4, className: "md:col-span-2" },
+      { key: "ctaPrimaryLabel", label: "Bottom CTA Primary Label", type: "text" },
+      { key: "ctaPrimaryHref", label: "Bottom CTA Primary Link", type: "text" },
+      { key: "ctaSecondaryLabel", label: "Bottom CTA Secondary Label", type: "text" },
+      { key: "ctaSecondaryHref", label: "Bottom CTA Secondary Link", type: "text" },
+    ],
   },
-  {
-    title: "Tours Landing Page",
-    href: "/tours",
-    description: "Tour collection page driven by the records managed in the Tours tab.",
-    managedIn: "Tours",
+  tours: {
+    summary: "Tours landing page hero and collection-introduction copy.",
+    fields: [
+      { key: "heroEyebrow", label: "Hero Eyebrow", type: "text" },
+      { key: "heroTitle", label: "Hero Title", type: "textarea", rows: 3, className: "md:col-span-2" },
+      { key: "heroDescription", label: "Hero Description", type: "textarea", rows: 4, className: "md:col-span-2" },
+      { key: "browseEyebrow", label: "Browse Eyebrow", type: "text" },
+      { key: "browseTitle", label: "Browse Title", type: "textarea", rows: 3, className: "md:col-span-2" },
+      { key: "browseDescription", label: "Browse Description", type: "textarea", rows: 4, className: "md:col-span-2" },
+    ],
   },
-  {
-    title: "Contact Page",
-    href: "/contact",
-    description: "Contact prompts, office information, and form entry points.",
-    managedIn: "Settings",
+  blog: {
+    summary: "Blog landing page hero and collection intro.",
+    fields: [
+      { key: "heroEyebrow", label: "Hero Eyebrow", type: "text" },
+      { key: "heroTitle", label: "Hero Title", type: "textarea", rows: 3, className: "md:col-span-2" },
+      { key: "heroDescription", label: "Hero Description", type: "textarea", rows: 4, className: "md:col-span-2" },
+    ],
   },
+  contact: {
+    summary: "Contact page hero copy, info-card labels, and map link.",
+    fields: [
+      { key: "heroEyebrow", label: "Hero Eyebrow", type: "text" },
+      { key: "heroTitle", label: "Hero Title", type: "textarea", rows: 3, className: "md:col-span-2" },
+      { key: "heroDescription", label: "Hero Description", type: "textarea", rows: 4, className: "md:col-span-2" },
+      { key: "officeLabel", label: "Office Label", type: "text" },
+      { key: "directLabel", label: "Direct Label", type: "text" },
+      { key: "whatsAppLabel", label: "WhatsApp Button Label", type: "text" },
+      { key: "mapEmbedUrl", label: "Map Embed URL", type: "text", className: "md:col-span-2" },
+    ],
+  },
+};
+
+const landingPageSlugs = ["home", "about", "contact"];
+const settingsGroups = [
+  { title: "General", keys: ["site_name", "tagline", "site_description", "brand_meaning", "brand_story", "founder_karamoja_commitment"] },
+  { title: "Contact", keys: ["contact_email", "contact_phone", "contact_whatsapp", "office_address"] },
+  { title: "Branding", keys: ["logo_path", "primary_color", "secondary_color", "accent_color", "surface_color"] },
 ];
 
-const landingPageFields = [
-  "site_name",
-  "tagline",
-  "site_description",
-  "brand_meaning",
-  "brand_story",
-  "founder_karamoja_commitment",
-] as const;
-
-export function AdminDashboardClient({
-  settings,
-  tours,
-  blogPosts,
-  testimonials,
-  contactSubmissions,
-  adminEmail,
-  logoPath,
-}: AdminDashboardClientProps) {
+export function AdminDashboardClient({ settings, pages, tours, blogPosts, testimonials, contactSubmissions, adminEmail, logoPath }: AdminDashboardClientProps) {
   const router = useRouter();
   const [message, setMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<AdminTab>("landing-pages");
-  const [settingsState, setSettingsState] = useState({
+  const [settingsState, setSettingsState] = useState<Record<string, string>>({
     site_name: settings.site_name ?? "",
     tagline: settings.tagline ?? "",
     site_description: settings.site_description ?? "",
@@ -84,62 +152,26 @@ export function AdminDashboardClient({
     brand_story: settings.brand_story ?? "",
     founder_karamoja_commitment: settings.founder_karamoja_commitment ?? "",
   });
+  const [pagesState, setPagesState] = useState<CmsPage[]>(pages);
   const [tourState, setTourState] = useState<Tour[]>(tours);
   const [blogState, setBlogState] = useState<BlogPost[]>(blogPosts);
   const [testimonialState, setTestimonialState] = useState<Testimonial[]>(testimonials);
 
   const navItems = [
-    {
-      id: "landing-pages" as const,
-      label: "Landing Pages",
-      description: "Home, About, and homepage social proof.",
-      count: landingPageCards.length,
-    },
-    {
-      id: "tours" as const,
-      label: "Tours",
-      description: "Tour pages and itinerary records.",
-      count: tourState.length,
-    },
-    {
-      id: "blog" as const,
-      label: "Blog",
-      description: "Journal articles and updates.",
-      count: blogState.length,
-    },
-    {
-      id: "submissions" as const,
-      label: "Form Submissions",
-      description: "Website enquiries and lead follow-up.",
-      count: contactSubmissions.length,
-    },
-    {
-      id: "settings" as const,
-      label: "Settings",
-      description: "Brand colors, contact details, and logo path.",
-      count: Object.keys(settingsState).length,
-    },
+    { id: "landing-pages" as const, label: "Landing Pages", description: "Home, About, and Contact page content.", count: pagesState.filter((page) => landingPageSlugs.includes(page.slug)).length },
+    { id: "tours" as const, label: "Tours", description: "Tours landing page plus every tour record.", count: tourState.length + 1 },
+    { id: "blog" as const, label: "Blog", description: "Blog landing page and article management.", count: blogState.length + 1 },
+    { id: "submissions" as const, label: "Form Submissions", description: "Website enquiries and lead follow-up.", count: contactSubmissions.length },
+    { id: "settings" as const, label: "Settings", description: "Branding, contact information, and defaults.", count: settingsGroups.length },
   ];
 
   async function request(path: string, init: RequestInit, key: string) {
     try {
       setSaving(key);
       setMessage(null);
-
-      const response = await fetch(path, {
-        ...init,
-        headers: {
-          "Content-Type": "application/json",
-          ...(init.headers ?? {}),
-        },
-      });
-
+      const response = await fetch(path, { ...init, headers: { "Content-Type": "application/json", ...(init.headers ?? {}) } });
       const payload = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(payload.error ?? "Request failed");
-      }
-
+      if (!response.ok) throw new Error(payload.error ?? "Request failed");
       setMessage("Saved successfully.");
       router.refresh();
     } catch (error) {
@@ -156,6 +188,10 @@ export function AdminDashboardClient({
     router.refresh();
   }
 
+  const landingPages = pagesState.filter((page) => landingPageSlugs.includes(page.slug));
+  const toursPage = pagesState.find((page) => page.slug === "tours");
+  const blogPage = pagesState.find((page) => page.slug === "blog");
+
   return (
     <div className="space-y-8">
       <section className="card overflow-hidden p-8">
@@ -165,19 +201,15 @@ export function AdminDashboardClient({
             <div>
               <p className="eyebrow">Website Control Panel</p>
               <h1 className="mt-2 font-heading text-4xl text-brand-900">Engatuny Admin</h1>
-              <p className="mt-2 text-sm leading-7 text-charcoal-600">
-                Signed in as {adminEmail}. Use the tabs below to manage each part of the website.
-              </p>
+              <p className="mt-2 text-sm leading-7 text-charcoal-600">Signed in as {adminEmail}. Each workspace mirrors a public-facing area of the website.</p>
             </div>
           </div>
           <div className="flex flex-wrap gap-3">
-            <StatBadge label="Landing Pages" value={String(landingPageCards.length)} />
+            <StatBadge label="Pages" value={String(pagesState.length)} />
             <StatBadge label="Tours" value={String(tourState.length)} />
             <StatBadge label="Blog Posts" value={String(blogState.length)} />
             <StatBadge label="Leads" value={String(contactSubmissions.length)} />
-            <button type="button" onClick={handleLogout} className="btn-ghost">
-              Sign Out
-            </button>
+            <button type="button" onClick={handleLogout} className="btn-ghost">Sign Out</button>
           </div>
         </div>
         {message ? <p className="mt-5 text-sm font-semibold text-brand-900">{message}</p> : null}
@@ -188,35 +220,12 @@ export function AdminDashboardClient({
           <nav className="card overflow-hidden p-3">
             <div className="space-y-2">
               {navItems.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => setActiveTab(item.id)}
-                  className={`w-full rounded-[1.4rem] px-4 py-4 text-left transition-colors ${
-                    activeTab === item.id
-                      ? "bg-brand-900 text-sand-50"
-                      : "bg-transparent text-charcoal-700 hover:bg-sand-50"
-                  }`}
-                >
+                <button key={item.id} type="button" onClick={() => setActiveTab(item.id)} className={`w-full rounded-[1.4rem] px-4 py-4 text-left transition-colors ${activeTab === item.id ? "bg-brand-900 text-sand-50" : "bg-transparent text-charcoal-700 hover:bg-sand-50"}`}>
                   <div className="flex items-center justify-between gap-3">
                     <span className="font-semibold">{item.label}</span>
-                    <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                        activeTab === item.id
-                          ? "bg-white/14 text-sand-50"
-                          : "bg-brand-900/6 text-brand-900"
-                      }`}
-                    >
-                      {item.count}
-                    </span>
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${activeTab === item.id ? "bg-white/14 text-sand-50" : "bg-brand-900/6 text-brand-900"}`}>{item.count}</span>
                   </div>
-                  <p
-                    className={`mt-2 text-sm leading-6 ${
-                      activeTab === item.id ? "text-sand-50/78" : "text-charcoal-500"
-                    }`}
-                  >
-                    {item.description}
-                  </p>
+                  <p className={`mt-2 text-sm leading-6 ${activeTab === item.id ? "text-sand-50/78" : "text-charcoal-500"}`}>{item.description}</p>
                 </button>
               ))}
             </div>
@@ -224,611 +233,266 @@ export function AdminDashboardClient({
         </aside>
 
         <div className="space-y-8">
-          {activeTab === "landing-pages" ? (
-            <>
-              <WorkspaceHeader
-                title="Landing Pages"
-                description="Manage the key story content that shapes the Home and About pages, and keep homepage testimonials easy to update."
-              />
+          {activeTab === "landing-pages" ? <PagesWorkspace title="Landing Pages" description="Open the page you want to edit, save it, then review the result on the public site." pages={landingPages} setPagesState={setPagesState} saving={saving} request={request} /> : null}
+          {activeTab === "tours" ? <ToursWorkspace toursPage={toursPage} setPagesState={setPagesState} tourState={tourState} setTourState={setTourState} saving={saving} request={request} /> : null}
+          {activeTab === "blog" ? <BlogWorkspace blogPage={blogPage} setPagesState={setPagesState} blogState={blogState} setBlogState={setBlogState} saving={saving} request={request} /> : null}
+          {activeTab === "submissions" ? <SubmissionsWorkspace contactSubmissions={contactSubmissions} request={request} /> : null}
+          {activeTab === "settings" ? <SettingsWorkspace settingsState={settingsState} setSettingsState={setSettingsState} saving={saving} request={request} /> : null}
+          {activeTab === "landing-pages" ? <TestimonialsWorkspace testimonialState={testimonialState} setTestimonialState={setTestimonialState} saving={saving} request={request} /> : null}
+        </div>
+      </div>
+    </div>
+  );
+}
 
-              <section className="grid gap-4 md:grid-cols-2">
-                {landingPageCards.map((page) => (
-                  <article key={page.title} className="card p-6">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <h3 className="font-heading text-2xl text-brand-900">{page.title}</h3>
-                        <p className="mt-3 text-sm leading-7 text-charcoal-600">
-                          {page.description}
-                        </p>
-                      </div>
-                      <span className="rounded-full bg-sand-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-brand-900">
-                        {page.managedIn}
-                      </span>
-                    </div>
-                    <a href={page.href} target="_blank" rel="noreferrer" className="btn-ghost mt-5">
-                      View Page
-                    </a>
-                  </article>
-                ))}
-              </section>
+function PagesWorkspace({ title, description, pages, setPagesState, saving, request }: { title: string; description: string; pages: CmsPage[]; setPagesState: Dispatch<SetStateAction<CmsPage[]>>; saving: string | null; request: (path: string, init: RequestInit, key: string) => Promise<void> }) {
+  return (
+    <>
+      <WorkspaceHeader title={title} description={description} />
+      <section className="space-y-4">
+        {pages.map((page) => (
+          <PageEditorCard key={page.slug} page={page} setPagesState={setPagesState} saving={saving} request={request} />
+        ))}
+      </section>
+    </>
+  );
+}
 
-              <section className="card p-8">
-                <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-                  <div>
-                    <h2 className="font-heading text-3xl text-brand-900">Core Landing Page Copy</h2>
-                    <p className="mt-2 text-sm leading-7 text-charcoal-600">
-                      These fields control the main brand and story language visitors see first.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    className="btn-primary"
-                    onClick={() =>
-                      request(
-                        "/api/admin/settings",
-                        {
-                          method: "POST",
-                          body: JSON.stringify(settingsState),
-                        },
-                        "landing-pages",
-                      )
-                    }
-                  >
-                    {saving === "landing-pages" ? "Saving..." : "Save Landing Page Content"}
-                  </button>
-                </div>
-                <div className="mt-6 grid gap-5 md:grid-cols-2">
-                  {landingPageFields.map((key) => (
-                    <SettingField
-                      key={key}
-                      fieldKey={key}
-                      value={settingsState[key]}
-                      onChange={(value) =>
-                        setSettingsState((current) => ({ ...current, [key]: value }))
-                      }
-                    />
-                  ))}
-                </div>
-              </section>
-
-              <CrudSection
-                title="Homepage Testimonials"
-                description="These quotes appear as social proof on the public-facing site."
-                items={testimonialState}
-                onAdd={() =>
-                  setTestimonialState((current) => [
-                    ...current,
-                    { name: "", homeCountry: "", trip: "", quote: "" },
-                  ])
-                }
-                renderItem={(testimonial, index) => (
-                  <article key={testimonial.id ?? `testimonial-${index}`} className="rounded-[1.5rem] border border-brand-900/10 p-6">
-                    <CrudGrid>
-                      <Field label="Name" value={testimonial.name} onChange={(value) => updateItem(setTestimonialState, index, { name: value })} />
-                      <Field label="Home Country" value={testimonial.homeCountry} onChange={(value) => updateItem(setTestimonialState, index, { homeCountry: value })} />
-                      <Field label="Trip" value={testimonial.trip} onChange={(value) => updateItem(setTestimonialState, index, { trip: value })} className="md:col-span-2" />
-                      <TextAreaField label="Quote" value={testimonial.quote} onChange={(value) => updateItem(setTestimonialState, index, { quote: value })} className="md:col-span-2" />
-                    </CrudGrid>
-                    <div className="mt-5 flex flex-wrap gap-3">
-                      <button
-                        type="button"
-                        className="btn-primary"
-                        onClick={() =>
-                          request(
-                            "/api/admin/testimonials",
-                            {
-                              method: "POST",
-                              body: JSON.stringify({ ...testimonial, status: "published" }),
-                            },
-                            `testimonial-${index}`,
-                          )
-                        }
-                      >
-                        {saving === `testimonial-${index}` ? "Saving..." : "Save Testimonial"}
-                      </button>
-                      {testimonial.id ? (
-                        <button
-                          type="button"
-                          className="btn-ghost"
-                          onClick={() =>
-                            request(`/api/admin/testimonials?id=${testimonial.id}`, { method: "DELETE" }, `testimonial-delete-${index}`)
-                          }
-                        >
-                          Delete
-                        </button>
-                      ) : null}
-                    </div>
-                  </article>
-                )}
-              />
-            </>
-          ) : null}
-
-          {activeTab === "settings" ? (
-            <>
-              <WorkspaceHeader
-                title="Settings"
-                description="Global website configuration for branding, contact details, and reusable site-wide values."
-              />
-
-              <section className="card p-8">
-                <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-                  <div>
-                    <h2 className="font-heading text-3xl text-brand-900">Website Settings</h2>
-                    <p className="mt-2 text-sm leading-7 text-charcoal-600">
-                      Change these values with care. They affect the full site experience.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    className="btn-primary"
-                    onClick={() =>
-                      request(
-                        "/api/admin/settings",
-                        {
-                          method: "POST",
-                          body: JSON.stringify(settingsState),
-                        },
-                        "settings",
-                      )
-                    }
-                  >
-                    {saving === "settings" ? "Saving..." : "Save Settings"}
-                  </button>
-                </div>
-                <div className="mt-6 grid gap-5 md:grid-cols-2">
-                  {Object.entries(settingsState).map(([key, value]) => (
-                    <SettingField
-                      key={key}
-                      fieldKey={key}
-                      value={value}
-                      onChange={(nextValue) =>
-                        setSettingsState((current) => ({ ...current, [key]: nextValue }))
-                      }
-                    />
-                  ))}
-                </div>
-              </section>
-            </>
-          ) : null}
-
-          {activeTab === "tours" ? (
-            <>
-              <WorkspaceHeader
-                title="Tours"
-                description="Manage the Tours landing page through the tour collection below, then open each itinerary as a dedicated landing page record."
-              />
-
-              <CrudSection
-        title="Tours"
-        description="Manage independent tour landing pages, route copy, and itinerary detail."
-        items={tourState}
-        onAdd={() =>
-          setTourState((current) => [
-            ...current,
-            {
-              slug: "",
-              title: "",
-              tagline: "",
-              heroDescription: "",
-              overview: "",
-              price: "",
-              duration: "3 Days",
-              durationDays: 3,
-              region: "",
-              type: "",
-              difficulty: "Moderate",
-              maxTravellers: 8,
-              image: "https://images.pexels.com/photos/34845589/pexels-photo-34845589.jpeg",
-              imageAlt: "",
-              enquirySubject: "",
-              routeDetails: "",
-              highlights: [],
-              itinerary: [],
-              idealFor: [],
-              inclusions: [],
-              accommodations: [],
-              landscapeStory: "",
-              cultureStory: "",
-              wildlifeStory: "",
-            },
-          ])
-        }
-        renderItem={(tour, index) => (
-          <article key={tour.id ?? `tour-${index}`} className="rounded-[1.5rem] border border-brand-900/10 p-6">
-            <CrudGrid>
-              <Field label="Title" value={tour.title} onChange={(value) => updateItem(setTourState, index, { title: value })} />
-              <Field label="Slug" value={tour.slug} onChange={(value) => updateItem(setTourState, index, { slug: value })} />
-              <Field label="Tagline" value={tour.tagline} onChange={(value) => updateItem(setTourState, index, { tagline: value })} className="md:col-span-2" />
-              <TextAreaField label="Hero Description" value={tour.heroDescription} onChange={(value) => updateItem(setTourState, index, { heroDescription: value })} className="md:col-span-2" />
-              <TextAreaField label="Overview" value={tour.overview} onChange={(value) => updateItem(setTourState, index, { overview: value })} className="md:col-span-2" />
-              <Field label="Price" value={tour.price} onChange={(value) => updateItem(setTourState, index, { price: value })} />
-              <Field label="Duration" value={tour.duration} onChange={(value) => updateItem(setTourState, index, { duration: value })} />
-              <Field label="Duration Days" type="number" value={String(tour.durationDays)} onChange={(value) => updateItem(setTourState, index, { durationDays: Number(value) })} />
-              <Field label="Max Travellers" type="number" value={String(tour.maxTravellers)} onChange={(value) => updateItem(setTourState, index, { maxTravellers: Number(value) })} />
-              <Field label="Region" value={tour.region} onChange={(value) => updateItem(setTourState, index, { region: value })} />
-              <Field label="Type" value={tour.type} onChange={(value) => updateItem(setTourState, index, { type: value })} />
-              <Field label="Difficulty" value={tour.difficulty} onChange={(value) => updateItem(setTourState, index, { difficulty: value as Tour["difficulty"] })} />
-              <Field label="Image URL" value={tour.image} onChange={(value) => updateItem(setTourState, index, { image: value })} className="md:col-span-2" />
-              <Field label="Image Alt" value={tour.imageAlt} onChange={(value) => updateItem(setTourState, index, { imageAlt: value })} className="md:col-span-2" />
-              <Field label="Enquiry Subject" value={tour.enquirySubject} onChange={(value) => updateItem(setTourState, index, { enquirySubject: value })} className="md:col-span-2" />
-              <TextAreaField label="Route Details" value={tour.routeDetails} onChange={(value) => updateItem(setTourState, index, { routeDetails: value })} className="md:col-span-2" />
-              <Field
-                label="Highlights"
-                value={tour.highlights.join(", ")}
-                onChange={(value) => updateItem(setTourState, index, { highlights: splitCommaList(value) })}
-                className="md:col-span-2"
-              />
-              <Field
-                label="Ideal For"
-                value={tour.idealFor.join(", ")}
-                onChange={(value) => updateItem(setTourState, index, { idealFor: splitCommaList(value) })}
-                className="md:col-span-2"
-              />
-              <Field
-                label="Inclusions"
-                value={tour.inclusions.join(", ")}
-                onChange={(value) => updateItem(setTourState, index, { inclusions: splitCommaList(value) })}
-                className="md:col-span-2"
-              />
-              <Field
-                label="Accommodation Options"
-                value={tour.accommodations.join(", ")}
-                onChange={(value) => updateItem(setTourState, index, { accommodations: splitCommaList(value) })}
-                className="md:col-span-2"
-              />
-              <TextAreaField
-                label="Itinerary"
-                value={tour.itinerary.join("\n")}
-                onChange={(value) => updateItem(setTourState, index, { itinerary: splitLineList(value) })}
-                className="md:col-span-2"
-              />
-              <TextAreaField label="Landscape Story" value={tour.landscapeStory} onChange={(value) => updateItem(setTourState, index, { landscapeStory: value })} className="md:col-span-2" />
-              <TextAreaField label="Culture Story" value={tour.cultureStory} onChange={(value) => updateItem(setTourState, index, { cultureStory: value })} className="md:col-span-2" />
-              <TextAreaField label="Wildlife Story" value={tour.wildlifeStory} onChange={(value) => updateItem(setTourState, index, { wildlifeStory: value })} className="md:col-span-2" />
-            </CrudGrid>
-            <div className="mt-5 flex flex-wrap gap-3">
-              <button
-                type="button"
-                className="btn-primary"
-                onClick={() =>
-                  request(
-                    "/api/admin/tours",
-                    {
-                      method: "POST",
-                      body: JSON.stringify({ ...tour, status: "published" }),
-                    },
-                    `tour-${index}`,
-                  )
-                }
-              >
-                {saving === `tour-${index}` ? "Saving..." : "Save Tour"}
-              </button>
-              {tour.id ? (
-                <button
-                  type="button"
-                  className="btn-ghost"
-                  onClick={() => request(`/api/admin/tours?id=${tour.id}`, { method: "DELETE" }, `tour-delete-${index}`)}
-                >
-                  Delete
-                </button>
-              ) : null}
-            </div>
-          </article>
-        )}
-      />
-            </>
-          ) : null}
-
-          {activeTab === "blog" ? (
-            <>
-              <WorkspaceHeader
-                title="Blog"
-                description="Manage all journal content in one place with a simpler article editing flow."
-              />
-
-              <CrudSection
-        title="Blog Posts"
-        description="Manage journal content, publishing dates, and story copy."
-        items={blogState}
-        onAdd={() =>
-          setBlogState((current) => [
-            ...current,
-            {
-              slug: "",
-              title: "",
-              excerpt: "",
-              publishedAt: new Date().toISOString().slice(0, 10),
-              readingTime: "5 min read",
-              image: "https://images.pexels.com/photos/17443313/pexels-photo-17443313.jpeg",
-              imageAlt: "",
-              content: [],
-            },
-          ])
-        }
-        renderItem={(post, index) => (
-          <article key={post.id ?? `post-${index}`} className="rounded-[1.5rem] border border-brand-900/10 p-6">
-            <CrudGrid>
-              <Field label="Title" value={post.title} onChange={(value) => updateItem(setBlogState, index, { title: value })} />
-              <Field label="Slug" value={post.slug} onChange={(value) => updateItem(setBlogState, index, { slug: value })} />
-              <TextAreaField label="Excerpt" value={post.excerpt} onChange={(value) => updateItem(setBlogState, index, { excerpt: value })} className="md:col-span-2" />
-              <Field label="Published At" value={post.publishedAt} onChange={(value) => updateItem(setBlogState, index, { publishedAt: value })} />
-              <Field label="Reading Time" value={post.readingTime} onChange={(value) => updateItem(setBlogState, index, { readingTime: value })} />
-              <Field label="Image URL" value={post.image} onChange={(value) => updateItem(setBlogState, index, { image: value })} className="md:col-span-2" />
-              <TextAreaField
-                label="Content Paragraphs"
-                value={post.content.join("\n")}
-                onChange={(value) => updateItem(setBlogState, index, { content: splitLineList(value) })}
-                className="md:col-span-2"
-              />
-            </CrudGrid>
-            <div className="mt-5 flex flex-wrap gap-3">
-              <button
-                type="button"
-                className="btn-primary"
-                onClick={() =>
-                  request(
-                    "/api/admin/blog-posts",
-                    {
-                      method: "POST",
-                      body: JSON.stringify({ ...post, status: "published" }),
-                    },
-                    `post-${index}`,
-                  )
-                }
-              >
-                {saving === `post-${index}` ? "Saving..." : "Save Post"}
-              </button>
-              {post.id ? (
-                <button
-                  type="button"
-                  className="btn-ghost"
-                  onClick={() =>
-                    request(`/api/admin/blog-posts?id=${post.id}`, { method: "DELETE" }, `post-delete-${index}`)
-                  }
-                >
-                  Delete
-                </button>
-              ) : null}
-            </div>
-          </article>
-        )}
-      />
-            </>
-          ) : null}
-
-          {activeTab === "submissions" ? (
-            <>
-              <WorkspaceHeader
-                title="Form Submissions"
-                description="Review website enquiries and keep their follow-up status clear for the team."
-              />
-
-              <section className="card p-8">
-        <h2 className="font-heading text-3xl text-brand-900">Contact Enquiries</h2>
+function ToursWorkspace({ toursPage, setPagesState, tourState, setTourState, saving, request }: { toursPage?: CmsPage; setPagesState: Dispatch<SetStateAction<CmsPage[]>>; tourState: Tour[]; setTourState: Dispatch<SetStateAction<Tour[]>>; saving: string | null; request: (path: string, init: RequestInit, key: string) => Promise<void> }) {
+  return (
+    <>
+      <WorkspaceHeader title="Tours" description="The tours landing page and each independent tour landing page live together here." />
+      {toursPage ? <PageEditorCard page={toursPage} setPagesState={setPagesState} saving={saving} request={request} /> : null}
+      <section className="card p-8">
+        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h2 className="font-heading text-3xl text-brand-900">Tour Landing Pages</h2>
+            <p className="mt-2 text-sm leading-7 text-charcoal-600">Open a tour to edit its landing page content, itinerary, and storytelling blocks.</p>
+          </div>
+          <button type="button" className="btn-ghost" onClick={() => setTourState((current) => [...current, { slug: "", title: "", tagline: "", heroDescription: "", overview: "", price: "", duration: "3 Days", durationDays: 3, region: "", type: "", difficulty: "Moderate", maxTravellers: 8, image: "https://images.pexels.com/photos/34845589/pexels-photo-34845589.jpeg", imageAlt: "", enquirySubject: "", routeDetails: "", highlights: [], itinerary: [], idealFor: [], inclusions: [], accommodations: [], landscapeStory: "", cultureStory: "", wildlifeStory: "" }])}>Add Tour</button>
+        </div>
         <div className="mt-6 space-y-4">
-          {contactSubmissions.length ? (
-            contactSubmissions.map((submission) => (
-              <article key={submission.id} className="rounded-[1.5rem] border border-brand-900/10 p-5">
-                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                  <div>
-                    <p className="text-lg font-semibold text-charcoal-900">{submission.name}</p>
-                    <p className="text-sm text-charcoal-600">
-                      {submission.email}
-                      {submission.preferredTour ? ` • ${submission.preferredTour}` : ""}
-                    </p>
-                    <p className="mt-3 text-sm leading-7 text-charcoal-700">
-                      {submission.message}
-                    </p>
-                  </div>
-                  <select
-                    className="rounded-full border border-brand-900/10 bg-white px-4 py-2 text-sm font-semibold text-charcoal-700"
-                    value={submission.status}
-                    onChange={(event) =>
-                      request(
-                        "/api/admin/contact-submissions",
-                        {
-                          method: "PATCH",
-                          body: JSON.stringify({ id: submission.id, status: event.target.value }),
-                        },
-                        `submission-${submission.id}`,
-                      )
-                    }
-                  >
-                    <option value="new">new</option>
-                    <option value="contacted">contacted</option>
-                    <option value="closed">closed</option>
-                  </select>
-                </div>
-              </article>
-            ))
-          ) : (
-            <p className="text-sm leading-7 text-charcoal-600">
-              No enquiries yet. Once the public form is connected to Supabase, new leads will appear here.
-            </p>
-          )}
+          {tourState.map((tour, index) => (
+            <AccordionCard key={tour.id ?? `tour-${index}`} title={tour.title || `Tour ${index + 1}`} subtitle={tour.tagline || "Independent tour landing page"} badge={tour.duration || "Draft"}>
+              <CrudGrid>
+                <Field label="Title" value={tour.title} onChange={(value) => updateItem(setTourState, index, { title: value })} />
+                <Field label="Slug" value={tour.slug} onChange={(value) => updateItem(setTourState, index, { slug: value })} />
+                <Field label="Tagline" value={tour.tagline} onChange={(value) => updateItem(setTourState, index, { tagline: value })} className="md:col-span-2" />
+                <TextAreaField label="Hero Description" value={tour.heroDescription} onChange={(value) => updateItem(setTourState, index, { heroDescription: value })} rows={4} className="md:col-span-2" />
+                <TextAreaField label="Overview" value={tour.overview} onChange={(value) => updateItem(setTourState, index, { overview: value })} rows={5} className="md:col-span-2" />
+                <Field label="Price" value={tour.price} onChange={(value) => updateItem(setTourState, index, { price: value })} />
+                <Field label="Duration" value={tour.duration} onChange={(value) => updateItem(setTourState, index, { duration: value })} />
+                <Field label="Duration Days" type="number" value={String(tour.durationDays)} onChange={(value) => updateItem(setTourState, index, { durationDays: Number(value) })} />
+                <Field label="Max Travellers" type="number" value={String(tour.maxTravellers)} onChange={(value) => updateItem(setTourState, index, { maxTravellers: Number(value) })} />
+                <Field label="Region" value={tour.region} onChange={(value) => updateItem(setTourState, index, { region: value })} />
+                <Field label="Type" value={tour.type} onChange={(value) => updateItem(setTourState, index, { type: value })} />
+                <Field label="Difficulty" value={tour.difficulty} onChange={(value) => updateItem(setTourState, index, { difficulty: value as Tour["difficulty"] })} />
+                <Field label="Image URL" value={tour.image} onChange={(value) => updateItem(setTourState, index, { image: value })} className="md:col-span-2" />
+                <Field label="Image Alt" value={tour.imageAlt} onChange={(value) => updateItem(setTourState, index, { imageAlt: value })} className="md:col-span-2" />
+                <Field label="Enquiry Subject" value={tour.enquirySubject} onChange={(value) => updateItem(setTourState, index, { enquirySubject: value })} className="md:col-span-2" />
+                <TextAreaField label="Route Details" value={tour.routeDetails} onChange={(value) => updateItem(setTourState, index, { routeDetails: value })} rows={4} className="md:col-span-2" />
+                <TextAreaField label="Itinerary" value={tour.itinerary.join("\n")} onChange={(value) => updateItem(setTourState, index, { itinerary: splitLineList(value) })} rows={6} className="md:col-span-2" />
+                <TextAreaField label="Highlights" value={tour.highlights.join("\n")} onChange={(value) => updateItem(setTourState, index, { highlights: splitLineList(value) })} rows={5} className="md:col-span-2" />
+                <TextAreaField label="Ideal For" value={tour.idealFor.join("\n")} onChange={(value) => updateItem(setTourState, index, { idealFor: splitLineList(value) })} rows={5} className="md:col-span-2" />
+                <TextAreaField label="Inclusions" value={tour.inclusions.join("\n")} onChange={(value) => updateItem(setTourState, index, { inclusions: splitLineList(value) })} rows={5} className="md:col-span-2" />
+                <TextAreaField label="Accommodation Options" value={tour.accommodations.join("\n")} onChange={(value) => updateItem(setTourState, index, { accommodations: splitLineList(value) })} rows={5} className="md:col-span-2" />
+                <TextAreaField label="Landscape Story" value={tour.landscapeStory} onChange={(value) => updateItem(setTourState, index, { landscapeStory: value })} rows={4} className="md:col-span-2" />
+                <TextAreaField label="Culture Story" value={tour.cultureStory} onChange={(value) => updateItem(setTourState, index, { cultureStory: value })} rows={4} className="md:col-span-2" />
+                <TextAreaField label="Wildlife Story" value={tour.wildlifeStory} onChange={(value) => updateItem(setTourState, index, { wildlifeStory: value })} rows={4} className="md:col-span-2" />
+              </CrudGrid>
+              <ActionRow>
+                <button type="button" className="btn-primary" onClick={() => request("/api/admin/tours", { method: "POST", body: JSON.stringify({ ...tour, status: "published" }) }, `tour-${index}`)}>{saving === `tour-${index}` ? "Saving..." : "Save Tour"}</button>
+                {tour.id ? <button type="button" className="btn-ghost" onClick={() => request(`/api/admin/tours?id=${tour.id}`, { method: "DELETE" }, `tour-delete-${index}`)}>Delete</button> : null}
+              </ActionRow>
+            </AccordionCard>
+          ))}
         </div>
       </section>
-            </>
-          ) : null}
-        </div>
-      </div>
-    </div>
+    </>
   );
 }
 
-function CrudSection<T>({
-  title,
-  description,
-  items,
-  onAdd,
-  renderItem,
-}: {
-  title: string;
-  description: string;
-  items: T[];
-  onAdd: () => void;
-  renderItem: (item: T, index: number) => ReactNode;
-}) {
+function BlogWorkspace({ blogPage, setPagesState, blogState, setBlogState, saving, request }: { blogPage?: CmsPage; setPagesState: Dispatch<SetStateAction<CmsPage[]>>; blogState: BlogPost[]; setBlogState: Dispatch<SetStateAction<BlogPost[]>>; saving: string | null; request: (path: string, init: RequestInit, key: string) => Promise<void> }) {
+  return (
+    <>
+      <WorkspaceHeader title="Blog" description="The blog landing page and every article record are managed here." />
+      {blogPage ? <PageEditorCard page={blogPage} setPagesState={setPagesState} saving={saving} request={request} /> : null}
+      <section className="card p-8">
+        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h2 className="font-heading text-3xl text-brand-900">Blog Posts</h2>
+            <p className="mt-2 text-sm leading-7 text-charcoal-600">Each article can be opened, edited, and saved independently.</p>
+          </div>
+          <button type="button" className="btn-ghost" onClick={() => setBlogState((current) => [...current, { slug: "", title: "", excerpt: "", publishedAt: new Date().toISOString().slice(0, 10), readingTime: "5 min read", image: "https://images.pexels.com/photos/17443313/pexels-photo-17443313.jpeg", imageAlt: "", content: [] }])}>Add Post</button>
+        </div>
+        <div className="mt-6 space-y-4">
+          {blogState.map((post, index) => (
+            <AccordionCard key={post.id ?? `post-${index}`} title={post.title || `Post ${index + 1}`} subtitle={post.excerpt || "Blog article"} badge={post.publishedAt || "Draft"}>
+              <CrudGrid>
+                <Field label="Title" value={post.title} onChange={(value) => updateItem(setBlogState, index, { title: value })} />
+                <Field label="Slug" value={post.slug} onChange={(value) => updateItem(setBlogState, index, { slug: value })} />
+                <TextAreaField label="Excerpt" value={post.excerpt} onChange={(value) => updateItem(setBlogState, index, { excerpt: value })} rows={4} className="md:col-span-2" />
+                <Field label="Published At" value={post.publishedAt} onChange={(value) => updateItem(setBlogState, index, { publishedAt: value })} />
+                <Field label="Reading Time" value={post.readingTime} onChange={(value) => updateItem(setBlogState, index, { readingTime: value })} />
+                <Field label="Image URL" value={post.image} onChange={(value) => updateItem(setBlogState, index, { image: value })} className="md:col-span-2" />
+                <TextAreaField label="Content Paragraphs" value={post.content.join("\n")} onChange={(value) => updateItem(setBlogState, index, { content: splitLineList(value) })} rows={7} className="md:col-span-2" />
+              </CrudGrid>
+              <ActionRow>
+                <button type="button" className="btn-primary" onClick={() => request("/api/admin/blog-posts", { method: "POST", body: JSON.stringify({ ...post, status: "published" }) }, `post-${index}`)}>{saving === `post-${index}` ? "Saving..." : "Save Post"}</button>
+                {post.id ? <button type="button" className="btn-ghost" onClick={() => request(`/api/admin/blog-posts?id=${post.id}`, { method: "DELETE" }, `post-delete-${index}`)}>Delete</button> : null}
+              </ActionRow>
+            </AccordionCard>
+          ))}
+        </div>
+      </section>
+    </>
+  );
+}
+
+function SubmissionsWorkspace({ contactSubmissions, request }: { contactSubmissions: ContactSubmission[]; request: (path: string, init: RequestInit, key: string) => Promise<void> }) {
+  return (
+    <>
+      <WorkspaceHeader title="Form Submissions" description="Review website enquiries and update their status without digging through clutter." />
+      <section className="card p-8">
+        <h2 className="font-heading text-3xl text-brand-900">Contact Enquiries</h2>
+        <div className="mt-6 space-y-4">
+          {contactSubmissions.length ? contactSubmissions.map((submission) => (
+            <article key={submission.id} className="rounded-[1.5rem] border border-brand-900/10 p-5">
+              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div>
+                  <p className="text-lg font-semibold text-charcoal-900">{submission.name}</p>
+                  <p className="text-sm text-charcoal-600">{submission.email}{submission.preferredTour ? ` • ${submission.preferredTour}` : ""}</p>
+                  <p className="mt-3 text-sm leading-7 text-charcoal-700">{submission.message}</p>
+                </div>
+                <select className="rounded-full border border-brand-900/10 bg-white px-4 py-2 text-sm font-semibold text-charcoal-700" value={submission.status} onChange={(event) => request("/api/admin/contact-submissions", { method: "PATCH", body: JSON.stringify({ id: submission.id, status: event.target.value }) }, `submission-${submission.id}`)}>
+                  <option value="new">new</option>
+                  <option value="contacted">contacted</option>
+                  <option value="closed">closed</option>
+                </select>
+              </div>
+            </article>
+          )) : <p className="text-sm leading-7 text-charcoal-600">No enquiries yet. Once the public form is connected to Supabase, new leads will appear here.</p>}
+        </div>
+      </section>
+    </>
+  );
+}
+
+function SettingsWorkspace({ settingsState, setSettingsState, saving, request }: { settingsState: Record<string, string>; setSettingsState: Dispatch<SetStateAction<Record<string, string>>>; saving: string | null; request: (path: string, init: RequestInit, key: string) => Promise<void> }) {
+  return (
+    <>
+      <WorkspaceHeader title="Settings" description="Global website configuration is grouped below so the backend stays clean and easy to navigate." />
+      <section className="card p-8">
+        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h2 className="font-heading text-3xl text-brand-900">Website Settings</h2>
+            <p className="mt-2 text-sm leading-7 text-charcoal-600">These settings are reused across the whole site and feed the branding system.</p>
+          </div>
+          <button type="button" className="btn-primary" onClick={() => request("/api/admin/settings", { method: "POST", body: JSON.stringify(settingsState) }, "settings")}>{saving === "settings" ? "Saving..." : "Save Settings"}</button>
+        </div>
+        <div className="mt-6 space-y-4">
+          {settingsGroups.map((group) => (
+            <AccordionCard key={group.title} title={group.title} subtitle={`${group.keys.length} fields in this group.`} badge={group.title}>
+              <CrudGrid>
+                {group.keys.map((key) => <SettingField key={key} fieldKey={key} value={settingsState[key]} onChange={(value) => setSettingsState((current) => ({ ...current, [key]: value }))} />)}
+              </CrudGrid>
+            </AccordionCard>
+          ))}
+        </div>
+      </section>
+    </>
+  );
+}
+
+function TestimonialsWorkspace({ testimonialState, setTestimonialState, saving, request }: { testimonialState: Testimonial[]; setTestimonialState: Dispatch<SetStateAction<Testimonial[]>>; saving: string | null; request: (path: string, init: RequestInit, key: string) => Promise<void> }) {
   return (
     <section className="card p-8">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
-          <h2 className="font-heading text-3xl text-brand-900">{title}</h2>
-          <p className="mt-2 text-sm leading-7 text-charcoal-600">{description}</p>
+          <h2 className="font-heading text-3xl text-brand-900">Homepage Testimonials</h2>
+          <p className="mt-2 text-sm leading-7 text-charcoal-600">These quotes appear as homepage social proof and are managed separately from the static page editors.</p>
         </div>
-        <button type="button" className="btn-ghost" onClick={onAdd}>
-          Add New
-        </button>
+        <button type="button" className="btn-ghost" onClick={() => setTestimonialState((current) => [...current, { name: "", homeCountry: "", trip: "", quote: "" }])}>Add Testimonial</button>
       </div>
-      <div className="mt-6 space-y-5">{items.map((item, index) => renderItem(item, index))}</div>
+      <div className="mt-6 space-y-4">
+        {testimonialState.map((testimonial, index) => (
+          <AccordionCard key={testimonial.id ?? `testimonial-${index}`} title={testimonial.name || `Testimonial ${index + 1}`} subtitle={testimonial.trip || "Homepage social proof"} badge={testimonial.homeCountry || "Draft"}>
+            <CrudGrid>
+              <Field label="Name" value={testimonial.name} onChange={(value) => updateItem(setTestimonialState, index, { name: value })} />
+              <Field label="Home Country" value={testimonial.homeCountry} onChange={(value) => updateItem(setTestimonialState, index, { homeCountry: value })} />
+              <Field label="Trip" value={testimonial.trip} onChange={(value) => updateItem(setTestimonialState, index, { trip: value })} className="md:col-span-2" />
+              <TextAreaField label="Quote" value={testimonial.quote} onChange={(value) => updateItem(setTestimonialState, index, { quote: value })} rows={5} className="md:col-span-2" />
+            </CrudGrid>
+            <ActionRow>
+              <button type="button" className="btn-primary" onClick={() => request("/api/admin/testimonials", { method: "POST", body: JSON.stringify({ ...testimonial, status: "published" }) }, `testimonial-${index}`)}>{saving === `testimonial-${index}` ? "Saving..." : "Save Testimonial"}</button>
+              {testimonial.id ? <button type="button" className="btn-ghost" onClick={() => request(`/api/admin/testimonials?id=${testimonial.id}`, { method: "DELETE" }, `testimonial-delete-${index}`)}>Delete</button> : null}
+            </ActionRow>
+          </AccordionCard>
+        ))}
+      </div>
     </section>
   );
 }
 
-function WorkspaceHeader({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) {
+function PageEditorCard({ page, setPagesState, saving, request }: { page: CmsPage; setPagesState: Dispatch<SetStateAction<CmsPage[]>>; saving: string | null; request: (path: string, init: RequestInit, key: string) => Promise<void> }) {
+  const config = pageEditorConfig[page.slug];
+  if (!config) return null;
+  const saveKey = `page-${page.slug}`;
   return (
-    <section className="card p-8">
-      <p className="eyebrow">{title}</p>
-      <h2 className="mt-3 font-heading text-4xl text-brand-900">{title}</h2>
-      <p className="mt-3 max-w-3xl text-sm leading-7 text-charcoal-600">{description}</p>
-    </section>
+    <AccordionCard title={page.title} subtitle={config.summary} badge={page.status}>
+      <CrudGrid>
+        <Field label="Page Title" value={page.title} onChange={(value) => updatePage(setPagesState, page.slug, { title: value })} />
+        <Field label="Page Slug" value={page.slug} onChange={(value) => updatePage(setPagesState, page.slug, { slug: value })} />
+        <TextAreaField label="Page Summary" value={page.excerpt} onChange={(value) => updatePage(setPagesState, page.slug, { excerpt: value })} rows={3} className="md:col-span-2" />
+        <Field label="Status" value={page.status} onChange={(value) => updatePage(setPagesState, page.slug, { status: value as CmsPage["status"] })} />
+        <Field label="Meta Title" value={page.metaTitle} onChange={(value) => updatePage(setPagesState, page.slug, { metaTitle: value })} />
+        <TextAreaField label="Meta Description" value={page.metaDescription} onChange={(value) => updatePage(setPagesState, page.slug, { metaDescription: value })} rows={3} className="md:col-span-2" />
+        {config.fields.map((field) => <PageFieldEditor key={`${page.slug}-${field.key}`} page={page} field={field} setPagesState={setPagesState} />)}
+      </CrudGrid>
+      <ActionRow>
+        <button type="button" className="btn-primary" onClick={() => request("/api/admin/pages", { method: "POST", body: JSON.stringify(page) }, saveKey)}>{saving === saveKey ? "Saving..." : "Save Page"}</button>
+        <a href={page.slug === "home" ? "/" : `/${page.slug}`} target="_blank" rel="noreferrer" className="btn-ghost">View Page</a>
+      </ActionRow>
+    </AccordionCard>
   );
 }
 
-function StatBadge({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-full bg-sand-50 px-4 py-2 text-sm font-semibold text-brand-900">
-      {label}: {value}
-    </div>
-  );
+function PageFieldEditor({ page, field, setPagesState }: { page: CmsPage; field: PageField; setPagesState: Dispatch<SetStateAction<CmsPage[]>> }) {
+  const value = page.content[field.key];
+  if (field.type === "textarea") return <TextAreaField label={field.label} value={typeof value === "string" ? value : ""} onChange={(nextValue) => updatePageContent(setPagesState, page.slug, field.key, nextValue)} rows={field.rows ?? 4} className={field.className} />;
+  if (field.type === "list") return <TextAreaField label={`${field.label} (one item per line)`} value={Array.isArray(value) ? value.join("\n") : ""} onChange={(nextValue) => updatePageContent(setPagesState, page.slug, field.key, splitLineList(nextValue))} rows={6} className={field.className} />;
+  if (field.type === "cards") return <TextAreaField label={`${field.label} (one item per line: Icon | Title | Description)`} value={cardsToText(value)} onChange={(nextValue) => updatePageContent(setPagesState, page.slug, field.key, textToCards(nextValue))} rows={7} className={field.className} />;
+  return <Field label={field.label} value={typeof value === "string" ? value : ""} onChange={(nextValue) => updatePageContent(setPagesState, page.slug, field.key, nextValue)} className={field.className} />;
 }
 
-function CrudGrid({ children }: { children: ReactNode }) {
-  return <div className="grid gap-4 md:grid-cols-2">{children}</div>;
+function WorkspaceHeader({ title, description }: { title: string; description: string }) {
+  return <section className="card p-8"><p className="eyebrow">{title}</p><h2 className="mt-3 font-heading text-4xl text-brand-900">{title}</h2><p className="mt-3 max-w-3xl text-sm leading-7 text-charcoal-600">{description}</p></section>;
 }
 
-function Field({
-  label,
-  value,
-  onChange,
-  className,
-  type = "text",
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  className?: string;
-  type?: string;
-}) {
-  return (
-    <label className={`block space-y-2 ${className ?? ""}`}>
-      <span className="text-sm font-semibold uppercase tracking-[0.12em] text-charcoal-500">
-        {label}
-      </span>
-      <input
-        type={type}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-[1rem] border border-brand-900/10 bg-white px-4 py-3 outline-none focus:border-brand-900"
-      />
-    </label>
-  );
+function AccordionCard({ title, subtitle, badge, children }: { title: string; subtitle: string; badge?: string; children: ReactNode }) {
+  return <details className="card overflow-hidden p-6" open><summary className="flex cursor-pointer list-none items-start justify-between gap-4"><div><h3 className="font-heading text-2xl text-brand-900">{title}</h3><p className="mt-2 text-sm leading-7 text-charcoal-600">{subtitle}</p></div>{badge ? <span className="rounded-full bg-sand-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-brand-900">{badge}</span> : null}</summary><div className="mt-6">{children}</div></details>;
 }
 
-function SettingField({
-  fieldKey,
-  value,
-  onChange,
-}: {
-  fieldKey: string;
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  const isLongField =
-    fieldKey.includes("description") ||
-    fieldKey.includes("story") ||
-    fieldKey.includes("commitment") ||
-    fieldKey === "office_address" ||
-    fieldKey === "brand_meaning";
+function StatBadge({ label, value }: { label: string; value: string }) { return <div className="rounded-full bg-sand-50 px-4 py-2 text-sm font-semibold text-brand-900">{label}: {value}</div>; }
+function CrudGrid({ children }: { children: ReactNode }) { return <div className="grid gap-4 md:grid-cols-2">{children}</div>; }
+function ActionRow({ children }: { children: ReactNode }) { return <div className="mt-5 flex flex-wrap gap-3">{children}</div>; }
 
-  if (isLongField) {
-    return (
-      <TextAreaField
-        label={fieldKey.replaceAll("_", " ")}
-        value={value}
-        onChange={onChange}
-        className="md:col-span-2"
-        rows={4}
-      />
-    );
-  }
-
-  return (
-    <Field
-      label={fieldKey.replaceAll("_", " ")}
-      value={value}
-      onChange={onChange}
-    />
-  );
+function Field({ label, value, onChange, className, type = "text" }: { label: string; value: string; onChange: (value: string) => void; className?: string; type?: string }) {
+  return <label className={`block space-y-2 ${className ?? ""}`}><span className="text-sm font-semibold uppercase tracking-[0.12em] text-charcoal-500">{label}</span><input type={type} value={value} onChange={(event) => onChange(event.target.value)} className="w-full rounded-[1rem] border border-brand-900/10 bg-white px-4 py-3 outline-none focus:border-brand-900" /></label>;
 }
 
-function TextAreaField({
-  label,
-  value,
-  onChange,
-  className,
-  rows = 6,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  className?: string;
-  rows?: number;
-}) {
-  return (
-    <label className={`block space-y-2 ${className ?? ""}`}>
-      <span className="text-sm font-semibold uppercase tracking-[0.12em] text-charcoal-500">
-        {label}
-      </span>
-      <textarea
-        rows={rows}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-[1rem] border border-brand-900/10 bg-white px-4 py-3 outline-none focus:border-brand-900"
-      />
-    </label>
-  );
+function TextAreaField({ label, value, onChange, className, rows = 6 }: { label: string; value: string; onChange: (value: string) => void; className?: string; rows?: number }) {
+  return <label className={`block space-y-2 ${className ?? ""}`}><span className="text-sm font-semibold uppercase tracking-[0.12em] text-charcoal-500">{label}</span><textarea rows={rows} value={value} onChange={(event) => onChange(event.target.value)} className="w-full rounded-[1rem] border border-brand-900/10 bg-white px-4 py-3 outline-none focus:border-brand-900" /></label>;
 }
 
-function updateItem<T>(
-  setter: Dispatch<SetStateAction<T[]>>,
-  index: number,
-  patch: Partial<T>,
-) {
-  setter((current) =>
-    current.map((item, itemIndex) =>
-      itemIndex === index ? ({ ...item, ...patch } as T) : item,
-    ),
-  );
+function SettingField({ fieldKey, value, onChange }: { fieldKey: string; value: string; onChange: (value: string) => void }) {
+  const longField = fieldKey.includes("description") || fieldKey.includes("story") || fieldKey.includes("commitment") || fieldKey === "office_address" || fieldKey === "brand_meaning";
+  return longField ? <TextAreaField label={fieldKey.replaceAll("_", " ")} value={value} onChange={onChange} className="md:col-span-2" rows={4} /> : <Field label={fieldKey.replaceAll("_", " ")} value={value} onChange={onChange} />;
 }
 
-function splitCommaList(value: string) {
-  return value
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
-}
-
-function splitLineList(value: string) {
-  return value
-    .split("\n")
-    .map((item) => item.trim())
-    .filter(Boolean);
-}
+function updateItem<T>(setter: Dispatch<SetStateAction<T[]>>, index: number, patch: Partial<T>) { setter((current) => current.map((item, itemIndex) => itemIndex === index ? ({ ...item, ...patch } as T) : item)); }
+function updatePage(setter: Dispatch<SetStateAction<CmsPage[]>>, slug: string, patch: Partial<CmsPage>) { setter((current) => current.map((page) => page.slug === slug ? { ...page, ...patch } : page)); }
+function updatePageContent(setter: Dispatch<SetStateAction<CmsPage[]>>, slug: string, key: string, value: PageContentValue) { setter((current) => current.map((page) => page.slug === slug ? { ...page, content: { ...page.content, [key]: value } } : page)); }
+function splitLineList(value: string) { return value.split("\n").map((item) => item.trim()).filter(Boolean); }
+function cardsToText(value: unknown) { return Array.isArray(value) ? value.map((item) => item && typeof item === "object" ? `${String((item as Record<string, unknown>).icon ?? "")} | ${String((item as Record<string, unknown>).title ?? "")} | ${String((item as Record<string, unknown>).description ?? "")}` : "").filter(Boolean).join("\n") : ""; }
+function textToCards(value: string) { return splitLineList(value).map((line) => { const [icon = "", title = "", ...rest] = line.split("|").map((part) => part.trim()); return { icon, title, description: rest.join(" | ").trim() }; }); }

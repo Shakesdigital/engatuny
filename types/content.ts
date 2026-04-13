@@ -82,3 +82,27 @@ export type ContactSubmission = {
   status: "new" | "contacted" | "closed";
   createdAt: string;
 };
+
+export type PageContentObject = Record<string, string>;
+
+export type PageContentValue =
+  | string
+  | string[]
+  | number
+  | boolean
+  | null
+  | PageContentObject
+  | PageContentObject[];
+
+export type PageContent = Record<string, PageContentValue>;
+
+export type CmsPage = {
+  id?: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  status: "draft" | "published" | "archived";
+  metaTitle: string;
+  metaDescription: string;
+  content: PageContent;
+};

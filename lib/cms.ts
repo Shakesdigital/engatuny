@@ -1,6 +1,15 @@
 import { createClient } from "@supabase/supabase-js";
+import { defaultPages, defaultPagesBySlug } from "@/lib/page-content";
 import { blogPosts, siteSettings, testimonials, tours } from "@/lib/site-data";
-import type { BlogPost, ContactSubmission, SiteSettings, Testimonial, Tour } from "@/types/content";
+import type {
+  BlogPost,
+  CmsPage,
+  ContactSubmission,
+  PageContent,
+  SiteSettings,
+  Testimonial,
+  Tour,
+} from "@/types/content";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -44,6 +53,24 @@ function mapTourRow(row: Record<string, unknown>): Tour {
     landscapeStory: (row.landscape_story as string) ?? "",
     cultureStory: (row.culture_story as string) ?? "",
     wildlifeStory: (row.wildlife_story as string) ?? "",
+  };
+}
+
+function mapPageRow(row: Record<string, unknown>): CmsPage {
+  const fallback = defaultPagesBySlug[(row.slug as string) ?? ""] ?? defaultPagesBySlug.home;
+
+  return {
+    id: row.id as string | undefined,
+    slug: (row.slug as string) ?? fallback.slug,
+    title: (row.title as string) ?? fallback.title,
+    excerpt: (row.excerpt as string) ?? fallback.excerpt,
+    status: ((row.status as string) ?? fallback.status) as CmsPage["status"],
+    metaTitle: (row.meta_title as string) ?? fallback.metaTitle,
+    metaDescription: (row.meta_description as string) ?? fallback.metaDescription,
+    content:
+      row.content && typeof row.content === "object"
+        ? (row.content as PageContent)
+        : fallback.content,
   };
 }
 
@@ -100,6 +127,53 @@ export async function getTours(): Promise<Tour[]> {
   }
 
   return data.map((tourRow) => mapTourRow(tourRow));
+}
+
+export async function getPages(): Promise<CmsPage[]> {
+  const supabase = getSupabaseClient();
+
+  if (!supabase) {
+    return defaultPages;
+  }
+
+  const { data } = await supabase
+    .from("pages")
+    .select("*")
+    .eq("status", "published")
+    .order("slug", { ascending: true });
+
+  if (!data?.length) {
+    return defaultPages;
+  }
+
+  const bySlug = new Map(defaultPages.map((page) => [page.slug, page]));
+  data.forEach((row) => {
+    const mapped = mapPageRow(row);
+    bySlug.set(mapped.slug, mapped);
+  });
+
+  return Array.from(bySlug.values());
+}
+
+export async function getPageBySlug(slug: string): Promise<CmsPage | null> {
+  const supabase = getSupabaseClient();
+
+  if (!supabase) {
+    return defaultPagesBySlug[slug] ?? null;
+  }
+
+  const { data } = await supabase
+    .from("pages")
+    .select("*")
+    .eq("slug", slug)
+    .eq("status", "published")
+    .maybeSingle();
+
+  if (!data) {
+    return defaultPagesBySlug[slug] ?? null;
+  }
+
+  return mapPageRow(data);
 }
 
 export async function getTourBySlug(slug: string): Promise<Tour | null> {

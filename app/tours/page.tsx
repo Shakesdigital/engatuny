@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { ToursBrowser } from "@/components/ui/tours-browser";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { getTours } from "@/lib/cms";
+import { getPageBySlug, getTours } from "@/lib/cms";
+import { getPageText } from "@/lib/page-utils";
 
 export const metadata: Metadata = {
   title: "Tours",
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ToursPage() {
-  const tours = await getTours();
+  const [tours, page] = await Promise.all([getTours(), getPageBySlug("tours")]);
 
   return (
     <>
@@ -25,13 +26,22 @@ export default async function ToursPage() {
           />
         </div>
         <div className="layout relative">
-          <p className="eyebrow text-brand-300">Our journeys</p>
+          <p className="eyebrow text-brand-300">
+            {getPageText(page, "heroEyebrow", "Our journeys")}
+          </p>
           <h1 className="mt-4 font-heading text-5xl leading-tight md:max-w-4xl md:text-6xl">
-            Tour pages built to show the route, mood, and meaning of each journey.
+            {getPageText(
+              page,
+              "heroTitle",
+              "Tour pages built to show the route, mood, and meaning of each journey.",
+            )}
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-sand-50/78">
-            Browse by duration, region, or travel style, then open any tour for its
-            full landing page and detailed story.
+            {getPageText(
+              page,
+              "heroDescription",
+              "Browse by duration, region, or travel style, then open any tour for its full landing page and detailed story.",
+            )}
           </p>
         </div>
       </section>
@@ -39,9 +49,17 @@ export default async function ToursPage() {
       <section className="section bg-white">
         <div className="layout">
           <SectionHeading
-            eyebrow="Browse and compare"
-            title="Clear itineraries, strong visuals, and dedicated pages for every route."
-            description="Each tour is listed here and also has its own page so travellers can understand the experience before they enquire."
+            eyebrow={getPageText(page, "browseEyebrow", "Browse and compare")}
+            title={getPageText(
+              page,
+              "browseTitle",
+              "Clear itineraries, strong visuals, and dedicated pages for every route.",
+            )}
+            description={getPageText(
+              page,
+              "browseDescription",
+              "Each tour is listed here and also has its own page so travellers can understand the experience before they enquire.",
+            )}
           />
           <div className="mt-10">
             <ToursBrowser tours={tours} />

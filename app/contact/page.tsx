@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { ContactForm } from "@/components/ui/contact-form";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { getWhatsAppUrl } from "@/lib/site-data";
-import { getSiteSettings, getTours } from "@/lib/cms";
+import { getPageBySlug, getSiteSettings, getTours } from "@/lib/cms";
+import { getPageText } from "@/lib/page-utils";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -15,7 +16,12 @@ export default async function ContactPage({
 }: {
   searchParams: Promise<{ tour?: string }>;
 }) {
-  const [params, tours, settings] = await Promise.all([searchParams, getTours(), getSiteSettings()]);
+  const [params, tours, settings, page] = await Promise.all([
+    searchParams,
+    getTours(),
+    getSiteSettings(),
+    getPageBySlug("contact"),
+  ]);
 
   return (
     <>
@@ -23,19 +29,31 @@ export default async function ContactPage({
         <div className="layout grid gap-10 lg:grid-cols-[0.85fr_1.15fr]">
           <div>
             <SectionHeading
-              eyebrow="Contact Us"
-              title="Tell us the kind of Uganda journey you want to feel."
-              description="We will shape the route around your pace, interests, and comfort level. Keep it simple. Start with a message."
+              eyebrow={getPageText(page, "heroEyebrow", "Contact Us")}
+              title={getPageText(
+                page,
+                "heroTitle",
+                "Tell us the kind of Uganda journey you want to feel.",
+              )}
+              description={getPageText(
+                page,
+                "heroDescription",
+                "We will shape the route around your pace, interests, and comfort level. Keep it simple. Start with a message.",
+              )}
             />
             <div className="mt-8 space-y-5 rounded-[1.75rem] bg-brand-900 p-7 text-sand-50">
               <div>
-                <p className="text-sm uppercase tracking-[0.16em] text-brand-300">Office</p>
+                <p className="text-sm uppercase tracking-[0.16em] text-brand-300">
+                  {getPageText(page, "officeLabel", "Office")}
+                </p>
                 <p className="mt-2 text-base leading-7 text-sand-50/80">
                   {settings.office}
                 </p>
               </div>
               <div>
-                <p className="text-sm uppercase tracking-[0.16em] text-brand-300">Direct</p>
+                <p className="text-sm uppercase tracking-[0.16em] text-brand-300">
+                  {getPageText(page, "directLabel", "Direct")}
+                </p>
                 <a href={`tel:${settings.phone}`} className="mt-2 block text-base text-sand-50/80">
                   {settings.phone}
                 </a>
@@ -44,7 +62,7 @@ export default async function ContactPage({
                 </a>
               </div>
               <a href={getWhatsAppUrl(settings.whatsApp)} target="_blank" rel="noreferrer" className="btn-primary">
-                Chat on WhatsApp
+                {getPageText(page, "whatsAppLabel", "Chat on WhatsApp")}
               </a>
             </div>
           </div>
@@ -57,7 +75,11 @@ export default async function ContactPage({
           <div className="overflow-hidden rounded-[2rem] border border-brand-900/10 shadow-[0_24px_50px_rgba(91,58,30,0.08)]">
             <iframe
               title="Engatuny Tours & Travel Kampala office map"
-              src="https://www.google.com/maps?q=Kampala%20Uganda&z=12&output=embed"
+              src={getPageText(
+                page,
+                "mapEmbedUrl",
+                "https://www.google.com/maps?q=Kampala%20Uganda&z=12&output=embed",
+              )}
               className="h-[420px] w-full border-0"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"

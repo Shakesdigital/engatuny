@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { getBlogPosts } from "@/lib/cms";
+import { getBlogPosts, getPageBySlug } from "@/lib/cms";
+import { getPageText } from "@/lib/page-utils";
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -9,16 +10,20 @@ export const metadata: Metadata = {
 };
 
 export default async function BlogPage() {
-  const posts = await getBlogPosts();
+  const [posts, page] = await Promise.all([getBlogPosts(), getPageBySlug("blog")]);
 
   return (
     <>
       <section className="section bg-sand-50">
         <div className="layout">
           <SectionHeading
-            eyebrow="Journal"
-            title="Stories, practical tips, and field notes from the trail."
-            description="A clean collection of useful inspiration for travellers dreaming about Uganda."
+            eyebrow={getPageText(page, "heroEyebrow", "Journal")}
+            title={getPageText(page, "heroTitle", "Stories, practical tips, and field notes from the trail.")}
+            description={getPageText(
+              page,
+              "heroDescription",
+              "A clean collection of useful inspiration for travellers dreaming about Uganda.",
+            )}
           />
           <div className="mt-12 grid gap-8 md:grid-cols-2">
             {posts.map((post) => (
