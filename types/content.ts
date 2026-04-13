@@ -15,6 +15,7 @@ export type Tour = {
   difficulty: Difficulty;
   maxTravellers: number;
   image: string;
+  imagePath?: string;
   imageAlt: string;
   enquirySubject: string;
   routeDetails: string;
@@ -44,6 +45,7 @@ export type BlogPost = {
   publishedAt: string;
   readingTime: string;
   image: string;
+  imagePath?: string;
   imageAlt: string;
   content: string[];
 };

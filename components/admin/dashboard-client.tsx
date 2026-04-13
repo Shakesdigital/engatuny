@@ -1,6 +1,6 @@
 "use client";
 
-import type { Dispatch, ReactNode, SetStateAction } from "react";
+import type { ChangeEvent, Dispatch, ReactNode, SetStateAction } from "react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
@@ -27,6 +27,7 @@ type AdminDashboardClientProps = {
 type AdminTab = "landing-pages" | "tours" | "blog" | "submissions" | "settings";
 type PageFieldType = "text" | "textarea" | "list" | "cards";
 type PageField = { key: string; label: string; type: PageFieldType; rows?: number; className?: string };
+type MediaDescriptor = { label: string; urlKey: string; pathKey: string; folder: string };
 
 const pageEditorConfig: Record<string, { summary: string; fields: PageField[] }> = {
   home: {
@@ -129,6 +130,15 @@ const settingsGroups = [
   { title: "Contact", keys: ["contact_email", "contact_phone", "contact_whatsapp", "office_address"] },
   { title: "Branding", keys: ["logo_path", "primary_color", "secondary_color", "accent_color", "surface_color"] },
 ];
+
+const pageMediaConfig: Record<string, MediaDescriptor[]> = {
+  home: [{ label: "Hero Background Image", urlKey: "heroImageUrl", pathKey: "heroImagePath", folder: "pages" }],
+  about: [
+    { label: "Hero Background Image", urlKey: "heroImageUrl", pathKey: "heroImagePath", folder: "pages" },
+    { label: "Featured About Image", urlKey: "featuredImageUrl", pathKey: "featuredImagePath", folder: "pages" },
+  ],
+  tours: [{ label: "Hero Background Image", urlKey: "heroImageUrl", pathKey: "heroImagePath", folder: "pages" }],
+};
 
 export function AdminDashboardClient({ settings, pages, tours, blogPosts, testimonials, contactSubmissions, adminEmail, logoPath }: AdminDashboardClientProps) {
   const router = useRouter();
@@ -287,6 +297,17 @@ function ToursWorkspace({ toursPage, setPagesState, tourState, setTourState, sav
                 <Field label="Region" value={tour.region} onChange={(value) => updateItem(setTourState, index, { region: value })} />
                 <Field label="Type" value={tour.type} onChange={(value) => updateItem(setTourState, index, { type: value })} />
                 <Field label="Difficulty" value={tour.difficulty} onChange={(value) => updateItem(setTourState, index, { difficulty: value as Tour["difficulty"] })} />
+                <MediaField
+                  label="Tour Featured Image"
+                  currentUrl={tour.image}
+                  currentPath={tour.imagePath}
+                  folder="tours"
+                  slug={tour.slug || `tour-${index + 1}`}
+                  field="featured-image"
+                  onUploaded={(url, path) => updateItem(setTourState, index, { image: url, imagePath: path })}
+                  onCleared={() => updateItem(setTourState, index, { image: "", imagePath: undefined })}
+                  className="md:col-span-2"
+                />
                 <Field label="Image URL" value={tour.image} onChange={(value) => updateItem(setTourState, index, { image: value })} className="md:col-span-2" />
                 <Field label="Image Alt" value={tour.imageAlt} onChange={(value) => updateItem(setTourState, index, { imageAlt: value })} className="md:col-span-2" />
                 <Field label="Enquiry Subject" value={tour.enquirySubject} onChange={(value) => updateItem(setTourState, index, { enquirySubject: value })} className="md:col-span-2" />
@@ -334,6 +355,17 @@ function BlogWorkspace({ blogPage, setPagesState, blogState, setBlogState, savin
                 <TextAreaField label="Excerpt" value={post.excerpt} onChange={(value) => updateItem(setBlogState, index, { excerpt: value })} rows={4} className="md:col-span-2" />
                 <Field label="Published At" value={post.publishedAt} onChange={(value) => updateItem(setBlogState, index, { publishedAt: value })} />
                 <Field label="Reading Time" value={post.readingTime} onChange={(value) => updateItem(setBlogState, index, { readingTime: value })} />
+                <MediaField
+                  label="Blog Featured Image"
+                  currentUrl={post.image}
+                  currentPath={post.imagePath}
+                  folder="blog"
+                  slug={post.slug || `post-${index + 1}`}
+                  field="featured-image"
+                  onUploaded={(url, path) => updateItem(setBlogState, index, { image: url, imagePath: path })}
+                  onCleared={() => updateItem(setBlogState, index, { image: "", imagePath: undefined })}
+                  className="md:col-span-2"
+                />
                 <Field label="Image URL" value={post.image} onChange={(value) => updateItem(setBlogState, index, { image: value })} className="md:col-span-2" />
                 <TextAreaField label="Content Paragraphs" value={post.content.join("\n")} onChange={(value) => updateItem(setBlogState, index, { content: splitLineList(value) })} rows={7} className="md:col-span-2" />
               </CrudGrid>
@@ -438,6 +470,7 @@ function PageEditorCard({ page, setPagesState, saving, request }: { page: CmsPag
   const config = pageEditorConfig[page.slug];
   if (!config) return null;
   const saveKey = `page-${page.slug}`;
+  const mediaFields = pageMediaConfig[page.slug] ?? [];
   return (
     <AccordionCard title={page.title} subtitle={config.summary} badge={page.status}>
       <CrudGrid>
@@ -447,6 +480,20 @@ function PageEditorCard({ page, setPagesState, saving, request }: { page: CmsPag
         <Field label="Status" value={page.status} onChange={(value) => updatePage(setPagesState, page.slug, { status: value as CmsPage["status"] })} />
         <Field label="Meta Title" value={page.metaTitle} onChange={(value) => updatePage(setPagesState, page.slug, { metaTitle: value })} />
         <TextAreaField label="Meta Description" value={page.metaDescription} onChange={(value) => updatePage(setPagesState, page.slug, { metaDescription: value })} rows={3} className="md:col-span-2" />
+        {mediaFields.map((media) => (
+          <MediaField
+            key={`${page.slug}-${media.urlKey}`}
+            label={media.label}
+            currentUrl={typeof page.content[media.urlKey] === "string" ? (page.content[media.urlKey] as string) : ""}
+            currentPath={typeof page.content[media.pathKey] === "string" ? (page.content[media.pathKey] as string) : undefined}
+            folder={media.folder}
+            slug={page.slug}
+            field={media.urlKey}
+            onUploaded={(url, path) => updatePageMedia(setPagesState, page.slug, media.urlKey, media.pathKey, url, path)}
+            onCleared={() => updatePageMedia(setPagesState, page.slug, media.urlKey, media.pathKey, "", "")}
+            className="md:col-span-2"
+          />
+        ))}
         {config.fields.map((field) => <PageFieldEditor key={`${page.slug}-${field.key}`} page={page} field={field} setPagesState={setPagesState} />)}
       </CrudGrid>
       <ActionRow>
@@ -463,6 +510,93 @@ function PageFieldEditor({ page, field, setPagesState }: { page: CmsPage; field:
   if (field.type === "list") return <TextAreaField label={`${field.label} (one item per line)`} value={Array.isArray(value) ? value.join("\n") : ""} onChange={(nextValue) => updatePageContent(setPagesState, page.slug, field.key, splitLineList(nextValue))} rows={6} className={field.className} />;
   if (field.type === "cards") return <TextAreaField label={`${field.label} (one item per line: Icon | Title | Description)`} value={cardsToText(value)} onChange={(nextValue) => updatePageContent(setPagesState, page.slug, field.key, textToCards(nextValue))} rows={7} className={field.className} />;
   return <Field label={field.label} value={typeof value === "string" ? value : ""} onChange={(nextValue) => updatePageContent(setPagesState, page.slug, field.key, nextValue)} className={field.className} />;
+}
+
+function MediaField({ label, currentUrl, currentPath, folder, slug, field, onUploaded, onCleared, className }: { label: string; currentUrl: string; currentPath?: string; folder: string; slug: string; field: string; onUploaded: (url: string, path: string) => void; onCleared: () => void; className?: string }) {
+  const [busy, setBusy] = useState(false);
+
+  async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
+    const selected = event.target.files?.[0];
+    if (!selected) return;
+
+    try {
+      setBusy(true);
+
+      if (currentPath) {
+        await fetch("/api/admin/media", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ path: currentPath }),
+        });
+      }
+
+      const formData = new FormData();
+      formData.append("file", selected);
+      formData.append("folder", folder);
+      formData.append("slug", slug);
+      formData.append("field", field);
+
+      const response = await fetch("/api/admin/media", {
+        method: "POST",
+        body: formData,
+      });
+
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error ?? "Upload failed");
+
+      onUploaded(payload.url, payload.path);
+      event.target.value = "";
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : "Upload failed.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleRemove() {
+    if (!currentPath) {
+      onCleared();
+      return;
+    }
+
+    try {
+      setBusy(true);
+      const response = await fetch("/api/admin/media", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path: currentPath }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error ?? "Delete failed");
+      onCleared();
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : "Delete failed.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className={`space-y-3 ${className ?? ""}`}>
+      <span className="text-sm font-semibold uppercase tracking-[0.12em] text-charcoal-500">
+        {label}
+      </span>
+      {currentUrl ? (
+        <img src={currentUrl} alt={label} className="h-48 w-full rounded-[1rem] border border-brand-900/10 object-cover" />
+      ) : (
+        <div className="flex h-32 items-center justify-center rounded-[1rem] border border-dashed border-brand-900/20 bg-sand-50 text-sm text-charcoal-500">
+          No image uploaded yet.
+        </div>
+      )}
+      <div className="flex flex-wrap gap-3">
+        <label className="btn-ghost cursor-pointer">
+          {busy ? "Working..." : currentUrl ? "Replace Image" : "Upload Image"}
+          <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" disabled={busy} />
+        </label>
+        {currentUrl ? <button type="button" className="btn-ghost" onClick={handleRemove} disabled={busy}>Remove Image</button> : null}
+      </div>
+    </div>
+  );
 }
 
 function WorkspaceHeader({ title, description }: { title: string; description: string }) {
@@ -493,6 +627,7 @@ function SettingField({ fieldKey, value, onChange }: { fieldKey: string; value: 
 function updateItem<T>(setter: Dispatch<SetStateAction<T[]>>, index: number, patch: Partial<T>) { setter((current) => current.map((item, itemIndex) => itemIndex === index ? ({ ...item, ...patch } as T) : item)); }
 function updatePage(setter: Dispatch<SetStateAction<CmsPage[]>>, slug: string, patch: Partial<CmsPage>) { setter((current) => current.map((page) => page.slug === slug ? { ...page, ...patch } : page)); }
 function updatePageContent(setter: Dispatch<SetStateAction<CmsPage[]>>, slug: string, key: string, value: PageContentValue) { setter((current) => current.map((page) => page.slug === slug ? { ...page, content: { ...page.content, [key]: value } } : page)); }
+function updatePageMedia(setter: Dispatch<SetStateAction<CmsPage[]>>, slug: string, urlKey: string, pathKey: string, url: string, path: string) { setter((current) => current.map((page) => page.slug === slug ? { ...page, content: { ...page.content, [urlKey]: url, [pathKey]: path } } : page)); }
 function splitLineList(value: string) { return value.split("\n").map((item) => item.trim()).filter(Boolean); }
 function cardsToText(value: unknown) { return Array.isArray(value) ? value.map((item) => item && typeof item === "object" ? `${String((item as Record<string, unknown>).icon ?? "")} | ${String((item as Record<string, unknown>).title ?? "")} | ${String((item as Record<string, unknown>).description ?? "")}` : "").filter(Boolean).join("\n") : ""; }
 function textToCards(value: string) { return splitLineList(value).map((line) => { const [icon = "", title = "", ...rest] = line.split("|").map((part) => part.trim()); return { icon, title, description: rest.join(" | ").trim() }; }); }

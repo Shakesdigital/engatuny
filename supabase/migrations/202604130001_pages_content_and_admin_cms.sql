@@ -1,6 +1,16 @@
 alter table public.pages
 add column if not exists content jsonb not null default '{}'::jsonb;
 
+alter table public.tours
+add column if not exists featured_image_path text;
+
+alter table public.blog_posts
+add column if not exists featured_image_path text;
+
+insert into storage.buckets (id, name, public)
+values ('media', 'media', true)
+on conflict (id) do nothing;
+
 insert into public.pages (
   slug,
   title,
@@ -20,6 +30,8 @@ values
     'Purposeful Uganda journeys shaped by local guides, lion-hearted hosting, and deep cultural respect.',
     '{
       "heroEyebrow": "Karamoja spirit. Uganda soul. Local guidance.",
+      "heroImageUrl": "https://images.pexels.com/photos/15017212/pexels-photo-15017212.jpeg?auto=compress&cs=tinysrgb&w=1600",
+      "heroImagePath": "",
       "heroTitle": "Travel Uganda with the calm strength of the lion.",
       "heroDescription": "Engatuny means lion, and that spirit guides how we host every journey across Uganda with courage, care, and grounded local knowledge.",
       "heroSubtitle": "Lion-hearted Uganda journeys",
@@ -80,6 +92,10 @@ values
     'Meet Engatuny Tours & Travel, a Uganda-focused operator shaped by the spirit of the lion.',
     '{
       "heroEyebrow": "About Engatuny",
+      "heroImageUrl": "https://images.pexels.com/photos/18856023/pexels-photo-18856023.jpeg?auto=compress&cs=tinysrgb&w=1600",
+      "heroImagePath": "",
+      "featuredImageUrl": "https://images.pexels.com/photos/19820463/pexels-photo-19820463.jpeg?auto=compress&cs=tinysrgb&w=1400",
+      "featuredImagePath": "",
       "heroTitle": "A Uganda travel company shaped by the spirit of the lion.",
       "introParagraphs": [
         "Engatuny Tours & Travel creates Uganda journeys that feel confident, warm, and deeply rooted. The name Engatuny means lion, and that meaning matters to us. It speaks to courage, watchfulness, and a calm kind of leadership that protects the quality of the guest experience.",
@@ -149,6 +165,8 @@ values
     'Explore Uganda journeys with dedicated landing pages, detailed itineraries, and clear cultural and wildlife focus.',
     '{
       "heroEyebrow": "Our journeys",
+      "heroImageUrl": "https://images.pexels.com/photos/34845589/pexels-photo-34845589.jpeg?auto=compress&cs=tinysrgb&w=1600",
+      "heroImagePath": "",
       "heroTitle": "Tour pages built to show the route, mood, and meaning of each journey.",
       "heroDescription": "Browse by duration, region, or travel style, then open any tour for its full landing page and detailed story.",
       "browseEyebrow": "Browse and compare",

@@ -20,8 +20,11 @@ export default async function ToursPage() {
           <div
             className="h-full w-full bg-cover bg-center"
             style={{
-              backgroundImage:
-                "url('https://images.pexels.com/photos/34845589/pexels-photo-34845589.jpeg?auto=compress&cs=tinysrgb&w=1600')",
+              backgroundImage: `url('${getPageText(
+                page,
+                "heroImageUrl",
+                "https://images.pexels.com/photos/34845589/pexels-photo-34845589.jpeg?auto=compress&cs=tinysrgb&w=1600",
+              )}')`,
             }}
           />
         </div>

@@ -18,6 +18,9 @@ export const defaultPages: CmsPage[] = [
     metaDescription:
       "Purposeful Uganda journeys shaped by local guides, lion-hearted hosting, and deep cultural respect.",
     content: {
+      heroImageUrl:
+        "https://images.pexels.com/photos/15017212/pexels-photo-15017212.jpeg?auto=compress&cs=tinysrgb&w=1600",
+      heroImagePath: "",
       heroEyebrow: "Karamoja spirit. Uganda soul. Local guidance.",
       heroTitle: "Travel Uganda with the calm strength of the lion.",
       heroDescription:
@@ -86,6 +89,12 @@ export const defaultPages: CmsPage[] = [
     metaDescription:
       "Meet Engatuny Tours & Travel, a Uganda-focused operator shaped by the spirit of the lion.",
     content: {
+      heroImageUrl:
+        "https://images.pexels.com/photos/18856023/pexels-photo-18856023.jpeg?auto=compress&cs=tinysrgb&w=1600",
+      heroImagePath: "",
+      featuredImageUrl:
+        "https://images.pexels.com/photos/19820463/pexels-photo-19820463.jpeg?auto=compress&cs=tinysrgb&w=1400",
+      featuredImagePath: "",
       heroEyebrow: "About Engatuny",
       heroTitle: "A Uganda travel company shaped by the spirit of the lion.",
       introParagraphs: [
@@ -157,6 +166,9 @@ export const defaultPages: CmsPage[] = [
     metaDescription:
       "Explore Uganda journeys with dedicated landing pages, detailed itineraries, and clear cultural and wildlife focus.",
     content: {
+      heroImageUrl:
+        "https://images.pexels.com/photos/34845589/pexels-photo-34845589.jpeg?auto=compress&cs=tinysrgb&w=1600",
+      heroImagePath: "",
       heroEyebrow: "Our journeys",
       heroTitle: "Tour pages built to show the route, mood, and meaning of each journey.",
       heroDescription:

@@ -41,8 +41,11 @@ export default async function AboutPage() {
           <div
             className="h-full w-full bg-cover bg-center"
             style={{
-              backgroundImage:
-                "url('https://images.pexels.com/photos/18856023/pexels-photo-18856023.jpeg?auto=compress&cs=tinysrgb&w=1600')",
+              backgroundImage: `url('${getPageText(
+                page,
+                "heroImageUrl",
+                "https://images.pexels.com/photos/18856023/pexels-photo-18856023.jpeg?auto=compress&cs=tinysrgb&w=1600",
+              )}')`,
             }}
           />
         </div>
@@ -65,7 +68,11 @@ export default async function AboutPage() {
           </div>
           <div className="card overflow-hidden">
             <img
-              src="https://images.pexels.com/photos/19820463/pexels-photo-19820463.jpeg?auto=compress&cs=tinysrgb&w=1400"
+              src={getPageText(
+                page,
+                "featuredImageUrl",
+                "https://images.pexels.com/photos/19820463/pexels-photo-19820463.jpeg?auto=compress&cs=tinysrgb&w=1400",
+              )}
               alt="Sailboat moving through the Nile under soft light."
               className="h-full min-h-[420px] w-full object-cover"
             />

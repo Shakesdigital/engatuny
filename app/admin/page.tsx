@@ -75,6 +75,7 @@ export default async function AdminPage() {
       difficulty: tour.difficulty,
       maxTravellers: tour.max_travellers,
       image: tour.featured_image_url ?? "",
+      imagePath: tour.featured_image_path ?? undefined,
       imageAlt: tour.image_alt ?? "",
       enquirySubject: tour.enquiry_subject ?? tour.title,
       routeDetails: tour.route_details ?? "",
@@ -97,6 +98,7 @@ export default async function AdminPage() {
       publishedAt: post.published_at?.slice(0, 10) ?? new Date().toISOString().slice(0, 10),
       readingTime: post.reading_time ?? "5 min read",
       image: post.featured_image_url ?? "",
+      imagePath: post.featured_image_path ?? undefined,
       imageAlt: "",
       content: Array.isArray(post.content) ? post.content : [],
     })) ?? blogPosts;

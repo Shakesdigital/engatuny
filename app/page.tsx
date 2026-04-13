@@ -33,8 +33,11 @@ export default async function HomePage() {
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage:
-              "linear-gradient(180deg, rgba(34, 24, 19, 0.2) 0%, rgba(34, 24, 19, 0.88) 100%), url('https://images.pexels.com/photos/15017212/pexels-photo-15017212.jpeg?auto=compress&cs=tinysrgb&w=1600')",
+            backgroundImage: `linear-gradient(180deg, rgba(34, 24, 19, 0.2) 0%, rgba(34, 24, 19, 0.88) 100%), url('${getPageText(
+              page,
+              "heroImageUrl",
+              "https://images.pexels.com/photos/15017212/pexels-photo-15017212.jpeg?auto=compress&cs=tinysrgb&w=1600",
+            )}')`,
           }}
         />
         <div className="layout relative py-20 md:py-28">

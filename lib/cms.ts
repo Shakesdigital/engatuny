@@ -42,6 +42,7 @@ function mapTourRow(row: Record<string, unknown>): Tour {
     image:
       (row.featured_image_url as string) ??
       "https://images.pexels.com/photos/34845589/pexels-photo-34845589.jpeg",
+    imagePath: (row.featured_image_path as string) ?? undefined,
     imageAlt: (row.image_alt as string) ?? `${row.title as string} featured image`,
     enquirySubject: (row.enquiry_subject as string) ?? (row.title as string) ?? "",
     routeDetails: (row.route_details as string) ?? "",
@@ -250,6 +251,7 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
     image:
       post.featured_image_url ??
       "https://images.pexels.com/photos/17443313/pexels-photo-17443313.jpeg",
+    imagePath: post.featured_image_path ?? undefined,
     imageAlt: `${post.title} featured image`,
     content: Array.isArray(post.content) ? post.content : [],
   }));
@@ -283,6 +285,7 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
     image:
       data.featured_image_url ??
       "https://images.pexels.com/photos/17443313/pexels-photo-17443313.jpeg",
+    imagePath: data.featured_image_path ?? undefined,
     imageAlt: `${data.title} featured image`,
     content: Array.isArray(data.content) ? data.content : [],
   };
