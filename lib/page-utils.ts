@@ -1,5 +1,17 @@
 import type { CmsPage, PageContentObject, PageContentValue } from "@/types/content";
 
+export type HeroSlide = {
+  imageUrl: string;
+  imagePath?: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+  primaryCtaLabel?: string;
+  primaryCtaHref?: string;
+  secondaryCtaLabel?: string;
+  secondaryCtaHref?: string;
+};
+
 export function getPageText(page: CmsPage | null, key: string, fallback: string) {
   const value = page?.content?.[key];
   return typeof value === "string" ? value : fallback;
@@ -31,4 +43,35 @@ export function getPageValue<T extends PageContentValue>(
 ) {
   const value = page?.content?.[key];
   return (value as T | undefined) ?? fallback;
+}
+
+export function getPageHeroSlides(page: CmsPage | null, fallback: HeroSlide[]) {
+  const value = page?.content?.heroSlides;
+
+  if (!Array.isArray(value)) {
+    return fallback;
+  }
+
+  const slides = value
+    .filter((item) => item && typeof item === "object" && !Array.isArray(item))
+    .map((item) => {
+      const record = item as Record<string, unknown>;
+      return {
+        imageUrl: typeof record.imageUrl === "string" ? record.imageUrl : "",
+        imagePath: typeof record.imagePath === "string" ? record.imagePath : "",
+        eyebrow: typeof record.eyebrow === "string" ? record.eyebrow : "",
+        title: typeof record.title === "string" ? record.title : "",
+        description: typeof record.description === "string" ? record.description : "",
+        primaryCtaLabel:
+          typeof record.primaryCtaLabel === "string" ? record.primaryCtaLabel : "",
+        primaryCtaHref: typeof record.primaryCtaHref === "string" ? record.primaryCtaHref : "",
+        secondaryCtaLabel:
+          typeof record.secondaryCtaLabel === "string" ? record.secondaryCtaLabel : "",
+        secondaryCtaHref:
+          typeof record.secondaryCtaHref === "string" ? record.secondaryCtaHref : "",
+      };
+    })
+    .filter((slide) => slide.imageUrl && slide.title);
+
+  return slides.length ? slides : fallback;
 }

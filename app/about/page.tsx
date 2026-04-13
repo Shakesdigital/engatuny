@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { CTASection } from "@/components/sections/cta-section";
+import { HeroSlider } from "@/components/sections/hero-slider";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { aboutValues, services, travellerReasons } from "@/lib/site-data";
 import { getPageBySlug, getSiteSettings } from "@/lib/cms";
-import { getPageList, getPageObjectList, getPageText } from "@/lib/page-utils";
+import { getPageHeroSlides, getPageList, getPageObjectList, getPageText } from "@/lib/page-utils";
 
 export const metadata: Metadata = {
   title: "About Us",
@@ -33,31 +34,20 @@ export default async function AboutPage() {
     })),
   );
   const reasons = getPageList(page, "reasons", travellerReasons);
+  const heroSlides = getPageHeroSlides(page, [
+    {
+      imageUrl:
+        "https://images.pexels.com/photos/18856023/pexels-photo-18856023.jpeg?auto=compress&cs=tinysrgb&w=1600",
+      eyebrow: "About Engatuny",
+      title: "A Uganda travel company shaped by the spirit of the lion.",
+      description:
+        "Our brand is rooted in courage, care, and the kind of grounded stewardship that helps travellers feel confidently held.",
+    },
+  ]);
 
   return (
     <>
-      <section className="relative isolate overflow-hidden bg-brand-900 py-24 text-sand-50 md:py-32">
-        <div className="absolute inset-0 opacity-20">
-          <div
-            className="h-full w-full bg-cover bg-center"
-            style={{
-              backgroundImage: `url('${getPageText(
-                page,
-                "heroImageUrl",
-                "https://images.pexels.com/photos/18856023/pexels-photo-18856023.jpeg?auto=compress&cs=tinysrgb&w=1600",
-              )}')`,
-            }}
-          />
-        </div>
-        <div className="layout relative">
-          <p className="eyebrow text-brand-300">
-            {getPageText(page, "heroEyebrow", "About Engatuny")}
-          </p>
-          <h1 className="mt-4 max-w-4xl font-heading text-5xl leading-tight md:text-6xl">
-            {getPageText(page, "heroTitle", "A Uganda travel company shaped by the spirit of the lion.")}
-          </h1>
-        </div>
-      </section>
+      <HeroSlider slides={heroSlides} minHeightClassName="min-h-[70vh]" />
 
       <section className="section bg-white">
         <div className="layout grid gap-12 lg:grid-cols-[1.2fr_0.8fr]">

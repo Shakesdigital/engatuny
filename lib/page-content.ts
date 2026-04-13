@@ -8,6 +8,29 @@ function service(icon: string, title: string, description: string): PageContentO
   return { icon, title, description };
 }
 
+function slide(
+  imageUrl: string,
+  eyebrow: string,
+  title: string,
+  description: string,
+  primaryCtaLabel = "",
+  primaryCtaHref = "",
+  secondaryCtaLabel = "",
+  secondaryCtaHref = "",
+): PageContentObject {
+  return {
+    imageUrl,
+    imagePath: "",
+    eyebrow,
+    title,
+    description,
+    primaryCtaLabel,
+    primaryCtaHref,
+    secondaryCtaLabel,
+    secondaryCtaHref,
+  };
+}
+
 export const defaultPages: CmsPage[] = [
   {
     slug: "home",
@@ -18,6 +41,28 @@ export const defaultPages: CmsPage[] = [
     metaDescription:
       "Purposeful Uganda journeys shaped by local guides, lion-hearted hosting, and deep cultural respect.",
     content: {
+      heroSlides: [
+        slide(
+          "https://images.pexels.com/photos/15017212/pexels-photo-15017212.jpeg?auto=compress&cs=tinysrgb&w=1600",
+          "Karamoja spirit. Uganda soul. Local guidance.",
+          "Travel Uganda with the calm strength of the lion.",
+          "Engatuny means lion, and that spirit guides how we host every journey across Uganda with courage, care, and grounded local knowledge.",
+          "Explore Our Tours",
+          "/tours",
+          "Plan Your Journey",
+          "/contact",
+        ),
+        slide(
+          "https://images.pexels.com/photos/34845589/pexels-photo-34845589.jpeg?auto=compress&cs=tinysrgb&w=1600",
+          "Wild horizons. Strong guiding. Clear logistics.",
+          "Journeys that balance wildlife, culture, and comfort.",
+          "From Kidepo to Bwindi, we shape each route with local rhythm, practical care, and a deep respect for place.",
+          "Browse Signature Tours",
+          "/tours",
+          "Talk to Engatuny",
+          "/contact",
+        ),
+      ],
       heroImageUrl:
         "https://images.pexels.com/photos/15017212/pexels-photo-15017212.jpeg?auto=compress&cs=tinysrgb&w=1600",
       heroImagePath: "",
@@ -89,6 +134,20 @@ export const defaultPages: CmsPage[] = [
     metaDescription:
       "Meet Engatuny Tours & Travel, a Uganda-focused operator shaped by the spirit of the lion.",
     content: {
+      heroSlides: [
+        slide(
+          "https://images.pexels.com/photos/18856023/pexels-photo-18856023.jpeg?auto=compress&cs=tinysrgb&w=1600",
+          "About Engatuny",
+          "A Uganda travel company shaped by the spirit of the lion.",
+          "Our brand is rooted in courage, care, and the kind of grounded stewardship that helps travellers feel confidently held.",
+        ),
+        slide(
+          "https://images.pexels.com/photos/15017212/pexels-photo-15017212.jpeg?auto=compress&cs=tinysrgb&w=1600",
+          "Rooted in Uganda",
+          "Travel built around people, place, and respect.",
+          "We guide wildlife, cultural, and tailor-made journeys with thoughtful pacing and a strong sense of responsibility to the places we share.",
+        ),
+      ],
       heroImageUrl:
         "https://images.pexels.com/photos/18856023/pexels-photo-18856023.jpeg?auto=compress&cs=tinysrgb&w=1600",
       heroImagePath: "",
@@ -166,6 +225,20 @@ export const defaultPages: CmsPage[] = [
     metaDescription:
       "Explore Uganda journeys with dedicated landing pages, detailed itineraries, and clear cultural and wildlife focus.",
     content: {
+      heroSlides: [
+        slide(
+          "https://images.pexels.com/photos/34845589/pexels-photo-34845589.jpeg?auto=compress&cs=tinysrgb&w=1600",
+          "Our journeys",
+          "Tour pages built to show the route, mood, and meaning of each journey.",
+          "Browse by duration, region, or travel style, then open any tour for its full landing page and detailed story.",
+        ),
+        slide(
+          "https://images.pexels.com/photos/15017212/pexels-photo-15017212.jpeg?auto=compress&cs=tinysrgb&w=1600",
+          "Signature Uganda routes",
+          "Independent tour pages with clear detail and stronger storytelling.",
+          "Each itinerary is listed clearly, then expanded into its own landing page so travellers can understand what fits them best.",
+        ),
+      ],
       heroImageUrl:
         "https://images.pexels.com/photos/34845589/pexels-photo-34845589.jpeg?auto=compress&cs=tinysrgb&w=1600",
       heroImagePath: "",
@@ -188,6 +261,20 @@ export const defaultPages: CmsPage[] = [
     metaDescription:
       "Travel stories, planning advice, and warm field notes from across Uganda's trails, forests, rivers, and hidden corners.",
     content: {
+      heroSlides: [
+        slide(
+          "https://images.pexels.com/photos/18856023/pexels-photo-18856023.jpeg?auto=compress&cs=tinysrgb&w=1600",
+          "Journal",
+          "Stories, practical tips, and field notes from the trail.",
+          "A clean collection of useful inspiration for travellers dreaming about Uganda.",
+        ),
+        slide(
+          "https://images.pexels.com/photos/17443313/pexels-photo-17443313.jpeg?auto=compress&cs=tinysrgb&w=1600",
+          "From the road and the wild",
+          "Ideas, planning notes, and stories gathered in the field.",
+          "Read through gorilla trekking advice, Kidepo notes, waterfall escapes, and the quieter moments that shape memorable journeys.",
+        ),
+      ],
       heroEyebrow: "Journal",
       heroTitle: "Stories, practical tips, and field notes from the trail.",
       heroDescription:
@@ -203,6 +290,20 @@ export const defaultPages: CmsPage[] = [
     metaDescription:
       "Reach Engatuny Tours & Travel to enquire about your ideal Uganda adventure, request a tailored itinerary, or chat on WhatsApp.",
     content: {
+      heroSlides: [
+        slide(
+          "https://images.pexels.com/photos/15017212/pexels-photo-15017212.jpeg?auto=compress&cs=tinysrgb&w=1600",
+          "Contact Us",
+          "Tell us the kind of Uganda journey you want to feel.",
+          "We will shape the route around your pace, interests, and comfort level. Keep it simple. Start with a message.",
+        ),
+        slide(
+          "https://images.pexels.com/photos/18856023/pexels-photo-18856023.jpeg?auto=compress&cs=tinysrgb&w=1600",
+          "Start with a conversation",
+          "Share your dates, style, and what is calling you most.",
+          "Whether you want a custom safari, a culture-led route, or a short add-on, we can shape the right journey from there.",
+        ),
+      ],
       heroEyebrow: "Contact Us",
       heroTitle: "Tell us the kind of Uganda journey you want to feel.",
       heroDescription:

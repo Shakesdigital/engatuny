@@ -25,7 +25,7 @@ type AdminDashboardClientProps = {
 };
 
 type AdminTab = "landing-pages" | "tours" | "blog" | "submissions" | "settings";
-type PageFieldType = "text" | "textarea" | "list" | "cards";
+type PageFieldType = "text" | "textarea" | "list" | "cards" | "slides";
 type PageField = { key: string; label: string; type: PageFieldType; rows?: number; className?: string };
 type MediaDescriptor = { label: string; urlKey: string; pathKey: string; folder: string };
 
@@ -33,14 +33,8 @@ const pageEditorConfig: Record<string, { summary: string; fields: PageField[] }>
   home: {
     summary: "Hero, trust bar, homepage story sections, featured tours, gallery, and CTA.",
     fields: [
-      { key: "heroEyebrow", label: "Hero Eyebrow", type: "text" },
-      { key: "heroTitle", label: "Hero Title", type: "textarea", rows: 3, className: "md:col-span-2" },
-      { key: "heroDescription", label: "Hero Description", type: "textarea", rows: 4, className: "md:col-span-2" },
       { key: "heroSubtitle", label: "Hero Logo Subtitle", type: "text" },
-      { key: "primaryCtaLabel", label: "Primary CTA Label", type: "text" },
-      { key: "primaryCtaHref", label: "Primary CTA Link", type: "text" },
-      { key: "secondaryCtaLabel", label: "Secondary CTA Label", type: "text" },
-      { key: "secondaryCtaHref", label: "Secondary CTA Link", type: "text" },
+      { key: "heroSlides", label: "Hero Slides", type: "slides", className: "md:col-span-2" },
       { key: "trustMetrics", label: "Trust Metrics", type: "list", className: "md:col-span-2" },
       { key: "whyChooseEyebrow", label: "Why Choose Eyebrow", type: "text" },
       { key: "whyChooseTitle", label: "Why Choose Title", type: "textarea", rows: 3, className: "md:col-span-2" },
@@ -68,8 +62,7 @@ const pageEditorConfig: Record<string, { summary: string; fields: PageField[] }>
   about: {
     summary: "About hero, story paragraphs, founder section, values, services, traveller reasons, and CTA.",
     fields: [
-      { key: "heroEyebrow", label: "Hero Eyebrow", type: "text" },
-      { key: "heroTitle", label: "Hero Title", type: "textarea", rows: 3, className: "md:col-span-2" },
+      { key: "heroSlides", label: "Hero Slides", type: "slides", className: "md:col-span-2" },
       { key: "introParagraphs", label: "Intro Paragraphs", type: "list", className: "md:col-span-2" },
       { key: "founderEyebrow", label: "Founder Eyebrow", type: "text" },
       { key: "founderTitle", label: "Founder Title", type: "textarea", rows: 3, className: "md:col-span-2" },
@@ -94,9 +87,7 @@ const pageEditorConfig: Record<string, { summary: string; fields: PageField[] }>
   tours: {
     summary: "Tours landing page hero and collection-introduction copy.",
     fields: [
-      { key: "heroEyebrow", label: "Hero Eyebrow", type: "text" },
-      { key: "heroTitle", label: "Hero Title", type: "textarea", rows: 3, className: "md:col-span-2" },
-      { key: "heroDescription", label: "Hero Description", type: "textarea", rows: 4, className: "md:col-span-2" },
+      { key: "heroSlides", label: "Hero Slides", type: "slides", className: "md:col-span-2" },
       { key: "browseEyebrow", label: "Browse Eyebrow", type: "text" },
       { key: "browseTitle", label: "Browse Title", type: "textarea", rows: 3, className: "md:col-span-2" },
       { key: "browseDescription", label: "Browse Description", type: "textarea", rows: 4, className: "md:col-span-2" },
@@ -105,17 +96,13 @@ const pageEditorConfig: Record<string, { summary: string; fields: PageField[] }>
   blog: {
     summary: "Blog landing page hero and collection intro.",
     fields: [
-      { key: "heroEyebrow", label: "Hero Eyebrow", type: "text" },
-      { key: "heroTitle", label: "Hero Title", type: "textarea", rows: 3, className: "md:col-span-2" },
-      { key: "heroDescription", label: "Hero Description", type: "textarea", rows: 4, className: "md:col-span-2" },
+      { key: "heroSlides", label: "Hero Slides", type: "slides", className: "md:col-span-2" },
     ],
   },
   contact: {
     summary: "Contact page hero copy, info-card labels, and map link.",
     fields: [
-      { key: "heroEyebrow", label: "Hero Eyebrow", type: "text" },
-      { key: "heroTitle", label: "Hero Title", type: "textarea", rows: 3, className: "md:col-span-2" },
-      { key: "heroDescription", label: "Hero Description", type: "textarea", rows: 4, className: "md:col-span-2" },
+      { key: "heroSlides", label: "Hero Slides", type: "slides", className: "md:col-span-2" },
       { key: "officeLabel", label: "Office Label", type: "text" },
       { key: "directLabel", label: "Direct Label", type: "text" },
       { key: "whatsAppLabel", label: "WhatsApp Button Label", type: "text" },
@@ -132,12 +119,9 @@ const settingsGroups = [
 ];
 
 const pageMediaConfig: Record<string, MediaDescriptor[]> = {
-  home: [{ label: "Hero Background Image", urlKey: "heroImageUrl", pathKey: "heroImagePath", folder: "pages" }],
   about: [
-    { label: "Hero Background Image", urlKey: "heroImageUrl", pathKey: "heroImagePath", folder: "pages" },
     { label: "Featured About Image", urlKey: "featuredImageUrl", pathKey: "featuredImagePath", folder: "pages" },
   ],
-  tours: [{ label: "Hero Background Image", urlKey: "heroImageUrl", pathKey: "heroImagePath", folder: "pages" }],
 };
 
 export function AdminDashboardClient({ settings, pages, tours, blogPosts, testimonials, contactSubmissions, adminEmail, logoPath }: AdminDashboardClientProps) {
@@ -509,7 +493,63 @@ function PageFieldEditor({ page, field, setPagesState }: { page: CmsPage; field:
   if (field.type === "textarea") return <TextAreaField label={field.label} value={typeof value === "string" ? value : ""} onChange={(nextValue) => updatePageContent(setPagesState, page.slug, field.key, nextValue)} rows={field.rows ?? 4} className={field.className} />;
   if (field.type === "list") return <TextAreaField label={`${field.label} (one item per line)`} value={Array.isArray(value) ? value.join("\n") : ""} onChange={(nextValue) => updatePageContent(setPagesState, page.slug, field.key, splitLineList(nextValue))} rows={6} className={field.className} />;
   if (field.type === "cards") return <TextAreaField label={`${field.label} (one item per line: Icon | Title | Description)`} value={cardsToText(value)} onChange={(nextValue) => updatePageContent(setPagesState, page.slug, field.key, textToCards(nextValue))} rows={7} className={field.className} />;
+  if (field.type === "slides") return <HeroSlidesField page={page} field={field} setPagesState={setPagesState} />;
   return <Field label={field.label} value={typeof value === "string" ? value : ""} onChange={(nextValue) => updatePageContent(setPagesState, page.slug, field.key, nextValue)} className={field.className} />;
+}
+
+function HeroSlidesField({ page, field, setPagesState }: { page: CmsPage; field: PageField; setPagesState: Dispatch<SetStateAction<CmsPage[]>> }) {
+  const slides = getHeroSlidesFromValue(page.content[field.key]);
+
+  return (
+    <div className={`space-y-4 ${field.className ?? ""}`}>
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-sm font-semibold uppercase tracking-[0.12em] text-charcoal-500">
+          {field.label}
+        </span>
+        <button
+          type="button"
+          className="btn-ghost"
+          onClick={() => updatePageContent(setPagesState, page.slug, field.key, [...slides, makeSlide()])}
+        >
+          Add Slide
+        </button>
+      </div>
+
+      {slides.map((slide, index) => (
+        <div key={`${page.slug}-slide-${index}`} className="rounded-[1.25rem] border border-brand-900/10 p-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <MediaField
+              label={`Slide ${index + 1} Image`}
+              currentUrl={slide.imageUrl}
+              currentPath={slide.imagePath}
+              folder="pages"
+              slug={page.slug}
+              field={`hero-slide-${index + 1}`}
+              onUploaded={(url, path) => updateHeroSlide(setPagesState, page.slug, field.key, index, { imageUrl: url, imagePath: path })}
+              onCleared={() => updateHeroSlide(setPagesState, page.slug, field.key, index, { imageUrl: "", imagePath: "" })}
+              className="md:col-span-2"
+            />
+            <Field label="Eyebrow" value={slide.eyebrow} onChange={(value) => updateHeroSlide(setPagesState, page.slug, field.key, index, { eyebrow: value })} />
+            <Field label="Primary CTA Label" value={slide.primaryCtaLabel} onChange={(value) => updateHeroSlide(setPagesState, page.slug, field.key, index, { primaryCtaLabel: value })} />
+            <TextAreaField label="Title" value={slide.title} onChange={(value) => updateHeroSlide(setPagesState, page.slug, field.key, index, { title: value })} rows={3} className="md:col-span-2" />
+            <TextAreaField label="Description" value={slide.description} onChange={(value) => updateHeroSlide(setPagesState, page.slug, field.key, index, { description: value })} rows={4} className="md:col-span-2" />
+            <Field label="Primary CTA Link" value={slide.primaryCtaHref} onChange={(value) => updateHeroSlide(setPagesState, page.slug, field.key, index, { primaryCtaHref: value })} />
+            <Field label="Secondary CTA Label" value={slide.secondaryCtaLabel} onChange={(value) => updateHeroSlide(setPagesState, page.slug, field.key, index, { secondaryCtaLabel: value })} />
+            <Field label="Secondary CTA Link" value={slide.secondaryCtaHref} onChange={(value) => updateHeroSlide(setPagesState, page.slug, field.key, index, { secondaryCtaHref: value })} className="md:col-span-2" />
+          </div>
+          <div className="mt-4">
+            <button
+              type="button"
+              className="btn-ghost"
+              onClick={() => removeHeroSlide(setPagesState, page.slug, field.key, index)}
+            >
+              Delete Slide
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 function MediaField({ label, currentUrl, currentPath, folder, slug, field, onUploaded, onCleared, className }: { label: string; currentUrl: string; currentPath?: string; folder: string; slug: string; field: string; onUploaded: (url: string, path: string) => void; onCleared: () => void; className?: string }) {
@@ -628,6 +668,10 @@ function updateItem<T>(setter: Dispatch<SetStateAction<T[]>>, index: number, pat
 function updatePage(setter: Dispatch<SetStateAction<CmsPage[]>>, slug: string, patch: Partial<CmsPage>) { setter((current) => current.map((page) => page.slug === slug ? { ...page, ...patch } : page)); }
 function updatePageContent(setter: Dispatch<SetStateAction<CmsPage[]>>, slug: string, key: string, value: PageContentValue) { setter((current) => current.map((page) => page.slug === slug ? { ...page, content: { ...page.content, [key]: value } } : page)); }
 function updatePageMedia(setter: Dispatch<SetStateAction<CmsPage[]>>, slug: string, urlKey: string, pathKey: string, url: string, path: string) { setter((current) => current.map((page) => page.slug === slug ? { ...page, content: { ...page.content, [urlKey]: url, [pathKey]: path } } : page)); }
+function updateHeroSlide(setter: Dispatch<SetStateAction<CmsPage[]>>, slug: string, fieldKey: string, index: number, patch: Record<string, string>) { setter((current) => current.map((page) => { if (page.slug !== slug) return page; const slides = getHeroSlidesFromValue(page.content[fieldKey]); return { ...page, content: { ...page.content, [fieldKey]: slides.map((slide, slideIndex) => slideIndex === index ? { ...slide, ...patch } : slide) } }; })); }
+function removeHeroSlide(setter: Dispatch<SetStateAction<CmsPage[]>>, slug: string, fieldKey: string, index: number) { setter((current) => current.map((page) => { if (page.slug !== slug) return page; const slides = getHeroSlidesFromValue(page.content[fieldKey]); return { ...page, content: { ...page.content, [fieldKey]: slides.filter((_, slideIndex) => slideIndex !== index) } }; })); }
 function splitLineList(value: string) { return value.split("\n").map((item) => item.trim()).filter(Boolean); }
 function cardsToText(value: unknown) { return Array.isArray(value) ? value.map((item) => item && typeof item === "object" ? `${String((item as Record<string, unknown>).icon ?? "")} | ${String((item as Record<string, unknown>).title ?? "")} | ${String((item as Record<string, unknown>).description ?? "")}` : "").filter(Boolean).join("\n") : ""; }
 function textToCards(value: string) { return splitLineList(value).map((line) => { const [icon = "", title = "", ...rest] = line.split("|").map((part) => part.trim()); return { icon, title, description: rest.join(" | ").trim() }; }); }
+function getHeroSlidesFromValue(value: unknown) { return Array.isArray(value) ? value.filter((item) => item && typeof item === "object" && !Array.isArray(item)).map((item) => { const slide = item as Record<string, unknown>; return { imageUrl: typeof slide.imageUrl === "string" ? slide.imageUrl : "", imagePath: typeof slide.imagePath === "string" ? slide.imagePath : "", eyebrow: typeof slide.eyebrow === "string" ? slide.eyebrow : "", title: typeof slide.title === "string" ? slide.title : "", description: typeof slide.description === "string" ? slide.description : "", primaryCtaLabel: typeof slide.primaryCtaLabel === "string" ? slide.primaryCtaLabel : "", primaryCtaHref: typeof slide.primaryCtaHref === "string" ? slide.primaryCtaHref : "", secondaryCtaLabel: typeof slide.secondaryCtaLabel === "string" ? slide.secondaryCtaLabel : "", secondaryCtaHref: typeof slide.secondaryCtaHref === "string" ? slide.secondaryCtaHref : "" }; }) : []; }
+function makeSlide() { return { imageUrl: "", imagePath: "", eyebrow: "", title: "", description: "", primaryCtaLabel: "", primaryCtaHref: "", secondaryCtaLabel: "", secondaryCtaHref: "" }; }

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { ContactForm } from "@/components/ui/contact-form";
+import { HeroSlider } from "@/components/sections/hero-slider";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { getWhatsAppUrl } from "@/lib/site-data";
 import { getPageBySlug, getSiteSettings, getTours } from "@/lib/cms";
-import { getPageText } from "@/lib/page-utils";
+import { getPageHeroSlides, getPageText } from "@/lib/page-utils";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -22,24 +23,28 @@ export default async function ContactPage({
     getSiteSettings(),
     getPageBySlug("contact"),
   ]);
+  const heroSlides = getPageHeroSlides(page, [
+    {
+      imageUrl:
+        "https://images.pexels.com/photos/15017212/pexels-photo-15017212.jpeg?auto=compress&cs=tinysrgb&w=1600",
+      eyebrow: "Contact Us",
+      title: "Tell us the kind of Uganda journey you want to feel.",
+      description:
+        "We will shape the route around your pace, interests, and comfort level. Keep it simple. Start with a message.",
+    },
+  ]);
 
   return (
     <>
+      <HeroSlider slides={heroSlides} minHeightClassName="min-h-[62vh]" />
+
       <section className="section bg-sand-50">
         <div className="layout grid gap-10 lg:grid-cols-[0.85fr_1.15fr]">
           <div>
             <SectionHeading
-              eyebrow={getPageText(page, "heroEyebrow", "Contact Us")}
-              title={getPageText(
-                page,
-                "heroTitle",
-                "Tell us the kind of Uganda journey you want to feel.",
-              )}
-              description={getPageText(
-                page,
-                "heroDescription",
-                "We will shape the route around your pace, interests, and comfort level. Keep it simple. Start with a message.",
-              )}
+              eyebrow="Plan With Engatuny"
+              title="Share your travel idea and we will shape the route with you."
+              description="Use the form or contact details below to begin the conversation."
             />
             <div className="mt-8 space-y-5 rounded-[1.75rem] bg-brand-900 p-7 text-sand-50">
               <div>

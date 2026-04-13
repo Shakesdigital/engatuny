@@ -1,4 +1,5 @@
 import { CTASection } from "@/components/sections/cta-section";
+import { HeroSlider } from "@/components/sections/hero-slider";
 import { PhotoGrid } from "@/components/sections/photo-grid";
 import { BrandLogo } from "@/components/site/brand-logo";
 import { SectionHeading } from "@/components/ui/section-heading";
@@ -6,7 +7,7 @@ import { TestimonialCarousel } from "@/components/ui/testimonial-carousel";
 import { TourCard } from "@/components/ui/tour-card";
 import { galleryMoments, trustMetrics, whyChooseEngatuny } from "@/lib/site-data";
 import { getPageBySlug, getSiteSettings, getTestimonials, getTours } from "@/lib/cms";
-import { getPageList, getPageObjectList, getPageText } from "@/lib/page-utils";
+import { getPageHeroSlides, getPageList, getPageObjectList, getPageText } from "@/lib/page-utils";
 
 export default async function HomePage() {
   const [tours, testimonials, settings, page] = await Promise.all([
@@ -16,6 +17,20 @@ export default async function HomePage() {
     getPageBySlug("home"),
   ]);
   const featuredTours = tours.slice(0, 4);
+  const heroSlides = getPageHeroSlides(page, [
+    {
+      imageUrl:
+        "https://images.pexels.com/photos/15017212/pexels-photo-15017212.jpeg?auto=compress&cs=tinysrgb&w=1600",
+      eyebrow: "Karamoja spirit. Uganda soul. Local guidance.",
+      title: "Travel Uganda with the calm strength of the lion.",
+      description:
+        `${settings.brandMeaning} We build journeys around wildlife, cultural depth, and the kind of warm logistics that let travellers relax into the experience.`,
+      primaryCtaLabel: "Explore Our Tours",
+      primaryCtaHref: "/tours",
+      secondaryCtaLabel: "Plan Your Journey",
+      secondaryCtaHref: "/contact",
+    },
+  ]);
   const trustItems = getPageList(page, "trustMetrics", trustMetrics.map((metric) => metric.label));
   const whyChooseItems = getPageObjectList(
     page,
@@ -29,50 +44,19 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className="relative isolate flex min-h-[94vh] items-end overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `linear-gradient(180deg, rgba(34, 24, 19, 0.2) 0%, rgba(34, 24, 19, 0.88) 100%), url('${getPageText(
-              page,
-              "heroImageUrl",
-              "https://images.pexels.com/photos/15017212/pexels-photo-15017212.jpeg?auto=compress&cs=tinysrgb&w=1600",
-            )}')`,
-          }}
-        />
-        <div className="layout relative py-20 md:py-28">
-          <div className="max-w-4xl text-white">
-            <div className="mb-6 inline-flex rounded-[2rem] bg-white/10 p-3 backdrop-blur-md">
-              <BrandLogo
-                logoPath={settings.logoPath}
-                siteName={settings.siteName}
-                subtitle={getPageText(page, "heroSubtitle", "Lion-hearted Uganda journeys")}
-              />
-            </div>
-            <p className="mb-5 inline-flex rounded-full border border-white/25 bg-white/10 px-4 py-2 text-sm uppercase tracking-[0.25em] text-white/90 backdrop-blur-sm">
-              {getPageText(page, "heroEyebrow", "Karamoja spirit. Uganda soul. Local guidance.")}
-            </p>
-            <h1 className="font-heading text-5xl leading-tight md:text-7xl">
-              {getPageText(page, "heroTitle", "Travel Uganda with the calm strength of the lion.")}
-            </h1>
-            <p className="mt-6 max-w-3xl text-lg leading-8 text-white/88 md:text-xl">
-              {getPageText(
-                page,
-                "heroDescription",
-                `${settings.brandMeaning} We build journeys around wildlife, cultural depth, and the kind of warm logistics that let travellers relax into the experience.`,
-              )}
-            </p>
-            <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-              <a className="btn-primary" href={getPageText(page, "primaryCtaHref", "/tours")}>
-                {getPageText(page, "primaryCtaLabel", "Explore Our Tours")}
-              </a>
-              <a className="btn-secondary" href={getPageText(page, "secondaryCtaHref", "/contact")}>
-                {getPageText(page, "secondaryCtaLabel", "Plan Your Journey")}
-              </a>
-            </div>
+      <HeroSlider
+        slides={heroSlides}
+        minHeightClassName="min-h-[94vh]"
+        brandingNode={
+          <div className="inline-flex rounded-[2rem] bg-white/10 p-3 backdrop-blur-md">
+            <BrandLogo
+              logoPath={settings.logoPath}
+              siteName={settings.siteName}
+              subtitle={getPageText(page, "heroSubtitle", "Lion-hearted Uganda journeys")}
+            />
           </div>
-        </div>
-      </section>
+        }
+      />
 
       <section className="border-y border-brand-900/8 bg-white/85">
         <div className="layout grid gap-4 py-5 text-sm font-semibold text-charcoal-700 md:grid-cols-3 md:items-center md:text-center">

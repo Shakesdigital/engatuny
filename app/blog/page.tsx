@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import { HeroSlider } from "@/components/sections/hero-slider";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { getBlogPosts, getPageBySlug } from "@/lib/cms";
-import { getPageText } from "@/lib/page-utils";
+import { getPageHeroSlides } from "@/lib/page-utils";
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -11,19 +12,27 @@ export const metadata: Metadata = {
 
 export default async function BlogPage() {
   const [posts, page] = await Promise.all([getBlogPosts(), getPageBySlug("blog")]);
+  const heroSlides = getPageHeroSlides(page, [
+    {
+      imageUrl:
+        "https://images.pexels.com/photos/18856023/pexels-photo-18856023.jpeg?auto=compress&cs=tinysrgb&w=1600",
+      eyebrow: "Journal",
+      title: "Stories, practical tips, and field notes from the trail.",
+      description:
+        "A clean collection of useful inspiration for travellers dreaming about Uganda.",
+    },
+  ]);
 
   return (
     <>
+      <HeroSlider slides={heroSlides} minHeightClassName="min-h-[62vh]" />
+
       <section className="section bg-sand-50">
         <div className="layout">
           <SectionHeading
-            eyebrow={getPageText(page, "heroEyebrow", "Journal")}
-            title={getPageText(page, "heroTitle", "Stories, practical tips, and field notes from the trail.")}
-            description={getPageText(
-              page,
-              "heroDescription",
-              "A clean collection of useful inspiration for travellers dreaming about Uganda.",
-            )}
+            eyebrow="Latest Stories"
+            title="Fresh field notes, planning ideas, and Uganda travel inspiration."
+            description="Browse the latest articles and open any story for the full read."
           />
           <div className="mt-12 grid gap-8 md:grid-cols-2">
             {posts.map((post) => (
