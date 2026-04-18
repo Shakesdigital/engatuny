@@ -43,6 +43,18 @@ type MediaDescriptor = {
   pathKey: string;
   folder: string;
 };
+type SettingsSection = {
+  id: string;
+  title: string;
+  description: string;
+  keys: string[];
+};
+type SettingsFieldConfig = {
+  label: string;
+  type?: "text" | "email" | "tel" | "url" | "color";
+  rows?: number;
+  className?: string;
+};
 
 const pageEditorConfig: Record<string, { summary: string; fields: PageField[] }> = {
   home: {
@@ -256,27 +268,96 @@ const pageEditorConfig: Record<string, { summary: string; fields: PageField[] }>
 };
 
 const landingPageSlugs = ["home", "tours", "about", "blog", "contact"];
-const settingsGroups = [
+const settingsSections: SettingsSection[] = [
   {
-    title: "General",
+    id: "general",
+    title: "General Website",
+    description: "Core website identity, public-facing defaults, and front-end basics.",
     keys: [
       "site_name",
       "tagline",
       "site_description",
+      "site_url",
+      "logo_path",
       "brand_meaning",
       "brand_story",
       "founder_karamoja_commitment",
     ],
   },
   {
+    id: "branding",
+    title: "Branding",
+    description: "Theme colors and visual defaults that shape the site look and feel.",
+    keys: ["primary_color", "secondary_color", "accent_color", "surface_color"],
+  },
+  {
+    id: "contact",
     title: "Contact",
+    description: "Contact details used across the website and enquiry flows.",
     keys: ["contact_email", "contact_phone", "contact_whatsapp", "office_address"],
   },
   {
-    title: "Branding",
-    keys: ["logo_path", "primary_color", "secondary_color", "accent_color", "surface_color"],
+    id: "social",
+    title: "Social Media",
+    description: "Social profile links that power the footer icons and brand presence.",
+    keys: [
+      "social_facebook_url",
+      "social_instagram_url",
+      "social_x_url",
+      "social_youtube_url",
+      "social_tiktok_url",
+      "twitter_handle",
+    ],
+  },
+  {
+    id: "seo",
+    title: "SEO & Metadata",
+    description: "Shared metadata defaults, social sharing image, and search keywords.",
+    keys: [
+      "default_meta_title",
+      "meta_description",
+      "meta_keywords",
+      "open_graph_image_url",
+    ],
   },
 ];
+
+const settingsFieldConfig: Record<string, SettingsFieldConfig> = {
+  site_name: { label: "Site Name" },
+  tagline: { label: "Tagline" },
+  site_description: { label: "Site Description", rows: 4, className: "md:col-span-2" },
+  site_url: { label: "Website URL", type: "url", className: "md:col-span-2" },
+  logo_path: { label: "Logo Path" },
+  brand_meaning: { label: "Brand Meaning", rows: 4, className: "md:col-span-2" },
+  brand_story: { label: "Brand Story", rows: 5, className: "md:col-span-2" },
+  founder_karamoja_commitment: {
+    label: "Founder Commitment",
+    rows: 5,
+    className: "md:col-span-2",
+  },
+  primary_color: { label: "Primary Color", type: "color" },
+  secondary_color: { label: "Secondary Color", type: "color" },
+  accent_color: { label: "Accent Color", type: "color" },
+  surface_color: { label: "Surface Color", type: "color" },
+  contact_email: { label: "Contact Email", type: "email" },
+  contact_phone: { label: "Contact Phone", type: "tel" },
+  contact_whatsapp: { label: "WhatsApp Number", type: "tel" },
+  office_address: { label: "Office Address", rows: 4, className: "md:col-span-2" },
+  social_facebook_url: { label: "Facebook URL", type: "url", className: "md:col-span-2" },
+  social_instagram_url: { label: "Instagram URL", type: "url", className: "md:col-span-2" },
+  social_x_url: { label: "X URL", type: "url", className: "md:col-span-2" },
+  social_youtube_url: { label: "YouTube URL", type: "url", className: "md:col-span-2" },
+  social_tiktok_url: { label: "TikTok URL", type: "url", className: "md:col-span-2" },
+  twitter_handle: { label: "Twitter Handle", className: "md:col-span-2" },
+  default_meta_title: { label: "Default Meta Title", rows: 3, className: "md:col-span-2" },
+  meta_description: { label: "Meta Description", rows: 4, className: "md:col-span-2" },
+  meta_keywords: { label: "Meta Keywords", rows: 4, className: "md:col-span-2" },
+  open_graph_image_url: {
+    label: "Open Graph Image URL",
+    type: "url",
+    className: "md:col-span-2",
+  },
+};
 
 const pageMediaConfig: Record<string, MediaDescriptor[]> = {
   tours: [
@@ -315,6 +396,7 @@ export function AdminDashboardClient({
     site_name: settings.site_name ?? "",
     tagline: settings.tagline ?? "",
     site_description: settings.site_description ?? "",
+    site_url: settings.site_url ?? "",
     contact_email: settings.contact_email ?? "",
     contact_phone: settings.contact_phone ?? "",
     contact_whatsapp: settings.contact_whatsapp ?? "",
@@ -327,6 +409,16 @@ export function AdminDashboardClient({
     brand_meaning: settings.brand_meaning ?? "",
     brand_story: settings.brand_story ?? "",
     founder_karamoja_commitment: settings.founder_karamoja_commitment ?? "",
+    default_meta_title: settings.default_meta_title ?? "",
+    meta_description: settings.meta_description ?? "",
+    meta_keywords: settings.meta_keywords ?? "",
+    open_graph_image_url: settings.open_graph_image_url ?? "",
+    twitter_handle: settings.twitter_handle ?? "",
+    social_facebook_url: settings.social_facebook_url ?? "",
+    social_instagram_url: settings.social_instagram_url ?? "",
+    social_x_url: settings.social_x_url ?? "",
+    social_youtube_url: settings.social_youtube_url ?? "",
+    social_tiktok_url: settings.social_tiktok_url ?? "",
   });
   const [pagesState, setPagesState] = useState<CmsPage[]>(pages);
   const [tourState, setTourState] = useState<Tour[]>(tours);
@@ -361,9 +453,9 @@ export function AdminDashboardClient({
     },
     {
       id: "settings" as const,
-      label: "Settings",
-      description: "Grouped brand, contact, and website defaults.",
-      count: settingsGroups.length,
+      label: "Website Settings",
+      description: "General website, branding, social, contact, and SEO controls.",
+      count: settingsSections.length,
     },
   ];
 
@@ -927,18 +1019,22 @@ function SettingsWorkspace({
   saving: string | null;
   request: RequestFn;
 }) {
+  const [activeSectionId, setActiveSectionId] = useState(settingsSections[0]?.id ?? "general");
+  const activeSection =
+    settingsSections.find((section) => section.id === activeSectionId) ?? settingsSections[0];
+
   return (
     <>
       <WorkspaceHeader
-        title="Settings"
-        description="Global website settings stay grouped so the backend remains clean and easy to scan."
+        title="Website Settings"
+        description="Manage the site-wide settings that shape branding, metadata, social links, and the public front-end experience."
       />
       <section className="card p-8">
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <h2 className="font-heading text-3xl text-brand-900">Website Settings</h2>
             <p className="mt-2 text-sm leading-7 text-charcoal-600">
-              These settings feed branding, contact details, and site-wide defaults.
+              These settings feed the footer icons, branding, metadata, SEO defaults, and other global front-end behaviour.
             </p>
           </div>
           <button
@@ -951,29 +1047,49 @@ function SettingsWorkspace({
             {saving === "settings" ? "Saving..." : "Save Settings"}
           </button>
         </div>
-        <div className="mt-6 space-y-4">
-          {settingsGroups.map((group, index) => (
-            <AccordionCard
-              key={group.title}
-              title={group.title}
-              subtitle={`${group.keys.length} fields in this group.`}
-              badge={group.title}
-              defaultOpen={index === 0}
-            >
-              <CrudGrid>
-                {group.keys.map((key) => (
-                  <SettingField
-                    key={key}
-                    fieldKey={key}
-                    value={settingsState[key]}
-                    onChange={(value) =>
-                      setSettingsState((current) => ({ ...current, [key]: value }))
-                    }
-                  />
-                ))}
-              </CrudGrid>
-            </AccordionCard>
-          ))}
+        <div className="mt-6 grid gap-6 xl:grid-cols-[260px_minmax(0,1fr)]">
+          <div className="space-y-3">
+            {settingsSections.map((section) => (
+              <button
+                key={section.id}
+                type="button"
+                onClick={() => setActiveSectionId(section.id)}
+                className={`w-full rounded-[1.25rem] border px-4 py-4 text-left transition-colors ${
+                  activeSection.id === section.id
+                    ? "border-brand-900 bg-brand-900 text-sand-50"
+                    : "border-brand-900/10 bg-white text-charcoal-800 hover:bg-sand-50"
+                }`}
+              >
+                <p className="font-semibold">{section.title}</p>
+                <p
+                  className={`mt-2 text-sm leading-6 ${
+                    activeSection.id === section.id ? "text-sand-50/82" : "text-charcoal-600"
+                  }`}
+                >
+                  {section.description}
+                </p>
+              </button>
+            ))}
+          </div>
+          <EditorCard
+            eyebrow="Section"
+            title={activeSection.title}
+            description={activeSection.description}
+            badge={`${activeSection.keys.length} fields`}
+          >
+            <CrudGrid>
+              {activeSection.keys.map((key) => (
+                <SettingField
+                  key={key}
+                  fieldKey={key}
+                  value={settingsState[key]}
+                  onChange={(value) =>
+                    setSettingsState((current) => ({ ...current, [key]: value }))
+                  }
+                />
+              ))}
+            </CrudGrid>
+          </EditorCard>
         </div>
       </section>
     </>
@@ -2085,33 +2201,6 @@ function InfoBlock({ label, value }: { label: string; value: string }) {
   );
 }
 
-function AccordionCard({
-  title,
-  subtitle,
-  badge,
-  children,
-  defaultOpen = false,
-}: {
-  title: string;
-  subtitle: string;
-  badge?: string;
-  children: ReactNode;
-  defaultOpen?: boolean;
-}) {
-  return (
-    <details className="card overflow-hidden p-6" open={defaultOpen}>
-      <summary className="flex cursor-pointer list-none items-start justify-between gap-4">
-        <div>
-          <h3 className="font-heading text-2xl text-brand-900">{title}</h3>
-          <p className="mt-2 text-sm leading-7 text-charcoal-600">{subtitle}</p>
-        </div>
-        {badge ? <StatusBadge value={badge} /> : null}
-      </summary>
-      <div className="mt-6">{children}</div>
-    </details>
-  );
-}
-
 function StatBadge({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-full bg-sand-50 px-4 py-2 text-sm font-semibold text-brand-900">
@@ -2203,23 +2292,30 @@ function SettingField({
   value: string;
   onChange: (value: string) => void;
 }) {
-  const longField =
-    fieldKey.includes("description") ||
-    fieldKey.includes("story") ||
-    fieldKey.includes("commitment") ||
-    fieldKey === "office_address" ||
-    fieldKey === "brand_meaning";
+  const config = settingsFieldConfig[fieldKey] ?? {
+    label: fieldKey.replaceAll("_", " "),
+  };
 
-  return longField ? (
-    <TextAreaField
-      label={fieldKey.replaceAll("_", " ")}
+  if (config.rows) {
+    return (
+      <TextAreaField
+        label={config.label}
+        value={value}
+        onChange={onChange}
+        className={config.className}
+        rows={config.rows}
+      />
+    );
+  }
+
+  return (
+    <Field
+      label={config.label}
       value={value}
       onChange={onChange}
-      className="md:col-span-2"
-      rows={4}
+      className={config.className}
+      type={config.type ?? "text"}
     />
-  ) : (
-    <Field label={fieldKey.replaceAll("_", " ")} value={value} onChange={onChange} />
   );
 }
 

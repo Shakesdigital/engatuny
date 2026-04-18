@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { Footer } from "@/components/site/footer";
 import { Header } from "@/components/site/header";
+import { getSocialLinks } from "@/lib/site-data";
 import type { SiteSettings } from "@/types/content";
 
 export function Shell({
@@ -30,6 +31,7 @@ export function Shell({
         email={settings.email}
         phone={settings.phone}
         office={settings.office}
+        socialLinks={getSocialLinks(settings)}
       />
     </>
   );

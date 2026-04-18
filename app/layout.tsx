@@ -4,6 +4,7 @@ import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { Shell } from "@/components/site/shell";
 import { getSiteSettings } from "@/lib/cms";
+import { siteSettings as fallbackSiteSettings } from "@/lib/site-data";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -16,54 +17,68 @@ const playfair = Playfair_Display({
   weight: ["600", "700"],
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://engatuny-tours.netlify.app"),
-  title: {
-    default: "Engatuny Tours & Travel | Follow the lion's path across Uganda",
-    template: "%s | Engatuny Tours & Travel",
-  },
-  description:
-    "Purposeful Uganda journeys shaped by local guides, warm hosting, and the proud spirit of the lion.",
-  keywords: [
-    "Uganda tours",
-    "Uganda safaris",
-    "Kidepo safari",
-    "Karamoja cultural tours",
-    "gorilla trekking Uganda",
-    "Engatuny Tours & Travel",
-  ],
-  icons: {
-    icon: "/engatuny-logo.png",
-    shortcut: "/engatuny-logo.png",
-    apple: "/engatuny-logo.png",
-  },
-  openGraph: {
-    title: "Engatuny Tours & Travel",
-    description:
-      "Lion-hearted Uganda journeys blending wildlife, culture, and grounded local hosting.",
-    url: "https://engatuny-tours.netlify.app",
-    siteName: "Engatuny Tours & Travel",
-    locale: "en_US",
-    type: "website",
-    images: [
-      {
-        url: "https://images.pexels.com/photos/15017212/pexels-photo-15017212.jpeg?auto=compress&cs=tinysrgb&w=1600",
-        width: 1600,
-        height: 900,
-        alt: "Remote safari vehicle in a dry northern Uganda landscape.",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Engatuny Tours & Travel",
-    description:
-      "Lion-hearted Uganda journeys blending wildlife, culture, and grounded local hosting.",
-    images: [
-      "https://images.pexels.com/photos/15017212/pexels-photo-15017212.jpeg?auto=compress&cs=tinysrgb&w=1600",
-    ],
-  },
-};
+function normaliseSiteUrl(value: string) {
+  try {
+    return new URL(value);
+  } catch {
+    return new URL(fallbackSiteSettings.siteUrl);
+  }
+}
+
+function parseKeywords(value: string) {
+  return value
+    .split(",")
+    .map((keyword) => keyword.trim())
+    .filter(Boolean);
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const metadataBase = normaliseSiteUrl(settings.siteUrl);
+  const defaultTitle =
+    settings.defaultMetaTitle || `${settings.siteName} | ${settings.tagline}`;
+  const description = settings.metaDescription || settings.description;
+  const openGraphImage =
+    settings.openGraphImageUrl || fallbackSiteSettings.openGraphImageUrl;
+
+  return {
+    metadataBase,
+    title: {
+      default: defaultTitle,
+      template: `%s | ${settings.siteName}`,
+    },
+    description,
+    keywords: parseKeywords(settings.metaKeywords),
+    icons: {
+      icon: settings.logoPath,
+      shortcut: settings.logoPath,
+      apple: settings.logoPath,
+    },
+    openGraph: {
+      title: settings.siteName,
+      description,
+      url: settings.siteUrl,
+      siteName: settings.siteName,
+      locale: "en_US",
+      type: "website",
+      images: [
+        {
+          url: openGraphImage,
+          width: 1600,
+          height: 900,
+          alt: `${settings.siteName} social sharing image`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: settings.siteName,
+      description,
+      creator: settings.twitterHandle,
+      images: [openGraphImage],
+    },
+  };
+}
 
 export default async function RootLayout({
   children,

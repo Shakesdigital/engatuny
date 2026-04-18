@@ -62,6 +62,7 @@ export type SiteSettings = {
   siteName: string;
   tagline: string;
   description: string;
+  siteUrl: string;
   email: string;
   phone: string;
   whatsApp: string;
@@ -74,6 +75,16 @@ export type SiteSettings = {
   brandMeaning: string;
   brandStory: string;
   founderKaramojaCommitment: string;
+  defaultMetaTitle: string;
+  metaDescription: string;
+  metaKeywords: string;
+  openGraphImageUrl: string;
+  twitterHandle: string;
+  facebookUrl: string;
+  instagramUrl: string;
+  xUrl: string;
+  youtubeUrl: string;
+  tiktokUrl: string;
 };
 
 export type ContactSubmission = {

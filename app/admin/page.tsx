@@ -154,6 +154,7 @@ export default async function AdminPage() {
             site_name: settings.site_name ?? siteSettings.siteName,
             tagline: settings.tagline ?? siteSettings.tagline,
             site_description: settings.site_description ?? siteSettings.description,
+            site_url: settings.site_url ?? siteSettings.siteUrl,
             contact_email: settings.contact_email ?? siteSettings.email,
             contact_phone: settings.contact_phone ?? siteSettings.phone,
             contact_whatsapp: settings.contact_whatsapp ?? siteSettings.whatsApp,
@@ -167,6 +168,23 @@ export default async function AdminPage() {
             brand_story: settings.brand_story ?? siteSettings.brandStory,
             founder_karamoja_commitment:
               settings.founder_karamoja_commitment ?? siteSettings.founderKaramojaCommitment,
+            default_meta_title:
+              settings.default_meta_title ?? siteSettings.defaultMetaTitle,
+            meta_description:
+              settings.meta_description ?? siteSettings.metaDescription,
+            meta_keywords: settings.meta_keywords ?? siteSettings.metaKeywords,
+            open_graph_image_url:
+              settings.open_graph_image_url ?? siteSettings.openGraphImageUrl,
+            twitter_handle: settings.twitter_handle ?? siteSettings.twitterHandle,
+            social_facebook_url:
+              settings.social_facebook_url ?? siteSettings.facebookUrl,
+            social_instagram_url:
+              settings.social_instagram_url ?? siteSettings.instagramUrl,
+            social_x_url: settings.social_x_url ?? siteSettings.xUrl,
+            social_youtube_url:
+              settings.social_youtube_url ?? siteSettings.youtubeUrl,
+            social_tiktok_url:
+              settings.social_tiktok_url ?? siteSettings.tiktokUrl,
           }}
           pages={livePages.length ? livePages : Object.values(defaultPagesBySlug)}
           tours={liveTours}

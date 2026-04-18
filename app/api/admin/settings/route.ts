@@ -6,6 +6,7 @@ const settingsSchema = z.object({
   site_name: z.string().min(2),
   tagline: z.string().min(2),
   site_description: z.string().min(10),
+  site_url: z.string().url(),
   contact_email: z.string().email(),
   contact_phone: z.string().min(6),
   contact_whatsapp: z.string().min(6),
@@ -18,12 +19,23 @@ const settingsSchema = z.object({
   brand_meaning: z.string().min(10),
   brand_story: z.string().min(10),
   founder_karamoja_commitment: z.string().min(10),
+  default_meta_title: z.string().min(10),
+  meta_description: z.string().min(10),
+  meta_keywords: z.string().min(10),
+  open_graph_image_url: z.string().url(),
+  twitter_handle: z.string().min(2),
+  social_facebook_url: z.string().url(),
+  social_instagram_url: z.string().url(),
+  social_x_url: z.string().url(),
+  social_youtube_url: z.string().url(),
+  social_tiktok_url: z.string().url(),
 });
 
 const groupMap: Record<string, string> = {
   site_name: "general",
   tagline: "general",
   site_description: "general",
+  site_url: "general",
   contact_email: "contact",
   contact_phone: "contact",
   contact_whatsapp: "contact",
@@ -36,6 +48,16 @@ const groupMap: Record<string, string> = {
   brand_meaning: "general",
   brand_story: "general",
   founder_karamoja_commitment: "general",
+  default_meta_title: "seo",
+  meta_description: "seo",
+  meta_keywords: "seo",
+  open_graph_image_url: "seo",
+  twitter_handle: "social",
+  social_facebook_url: "social",
+  social_instagram_url: "social",
+  social_x_url: "social",
+  social_youtube_url: "social",
+  social_tiktok_url: "social",
 };
 
 export async function POST(request: Request) {

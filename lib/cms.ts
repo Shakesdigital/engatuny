@@ -94,6 +94,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     siteName: mapped.site_name ?? siteSettings.siteName,
     tagline: mapped.tagline ?? siteSettings.tagline,
     description: mapped.site_description ?? siteSettings.description,
+    siteUrl: mapped.site_url ?? siteSettings.siteUrl,
     email: mapped.contact_email ?? siteSettings.email,
     phone: mapped.contact_phone ?? siteSettings.phone,
     whatsApp: mapped.contact_whatsapp ?? siteSettings.whatsApp,
@@ -107,6 +108,16 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     brandStory: mapped.brand_story ?? siteSettings.brandStory,
     founderKaramojaCommitment:
       mapped.founder_karamoja_commitment ?? siteSettings.founderKaramojaCommitment,
+    defaultMetaTitle: mapped.default_meta_title ?? siteSettings.defaultMetaTitle,
+    metaDescription: mapped.meta_description ?? siteSettings.metaDescription,
+    metaKeywords: mapped.meta_keywords ?? siteSettings.metaKeywords,
+    openGraphImageUrl: mapped.open_graph_image_url ?? siteSettings.openGraphImageUrl,
+    twitterHandle: mapped.twitter_handle ?? siteSettings.twitterHandle,
+    facebookUrl: mapped.social_facebook_url ?? siteSettings.facebookUrl,
+    instagramUrl: mapped.social_instagram_url ?? siteSettings.instagramUrl,
+    xUrl: mapped.social_x_url ?? siteSettings.xUrl,
+    youtubeUrl: mapped.social_youtube_url ?? siteSettings.youtubeUrl,
+    tiktokUrl: mapped.social_tiktok_url ?? siteSettings.tiktokUrl,
   };
 }
 
@@ -299,6 +310,7 @@ export async function getAdminSettings(): Promise<Record<string, string>> {
       site_name: siteSettings.siteName,
       tagline: siteSettings.tagline,
       site_description: siteSettings.description,
+      site_url: siteSettings.siteUrl,
       contact_email: siteSettings.email,
       contact_phone: siteSettings.phone,
       contact_whatsapp: siteSettings.whatsApp,
@@ -311,6 +323,16 @@ export async function getAdminSettings(): Promise<Record<string, string>> {
       brand_meaning: siteSettings.brandMeaning,
       brand_story: siteSettings.brandStory,
       founder_karamoja_commitment: siteSettings.founderKaramojaCommitment,
+      default_meta_title: siteSettings.defaultMetaTitle,
+      meta_description: siteSettings.metaDescription,
+      meta_keywords: siteSettings.metaKeywords,
+      open_graph_image_url: siteSettings.openGraphImageUrl,
+      twitter_handle: siteSettings.twitterHandle,
+      social_facebook_url: siteSettings.facebookUrl,
+      social_instagram_url: siteSettings.instagramUrl,
+      social_x_url: siteSettings.xUrl,
+      social_youtube_url: siteSettings.youtubeUrl,
+      social_tiktok_url: siteSettings.tiktokUrl,
     };
   }
 

@@ -1,10 +1,17 @@
 import type { BlogPost, GalleryPhoto, SiteSettings, Testimonial, Tour } from "@/types/content";
 
+export type SocialLink = {
+  label: string;
+  href: string;
+  kind: "facebook" | "instagram" | "x" | "youtube" | "tiktok";
+};
+
 export const siteSettings: SiteSettings = {
   siteName: "Engatuny Tours & Travel",
   tagline: "Follow the lion's path across Uganda.",
   description:
     "Purposeful Uganda journeys shaped by local guides, warm hosting, and the proud spirit of the lion.",
+  siteUrl: "https://engatuny-tours.netlify.app",
   email: "hello@engatuny.com",
   phone: "+256772123456",
   whatsApp: "+256772123456",
@@ -20,6 +27,19 @@ export const siteSettings: SiteSettings = {
     "We design travel with the calm confidence of a lion: attentive on the ground, strong in logistics, and deeply respectful of the landscapes and communities that welcome our guests.",
   founderKaramojaCommitment:
     "Our founder holds Karamoja close to heart and uses Engatuny journeys to share its dignity, beauty, resilience, and living culture with travellers who want to engage with care.",
+  defaultMetaTitle: "Engatuny Tours & Travel | Follow the lion's path across Uganda",
+  metaDescription:
+    "Purposeful Uganda journeys shaped by local guides, warm hosting, and the proud spirit of the lion.",
+  metaKeywords:
+    "Uganda tours, Uganda safaris, Kidepo safari, Karamoja cultural tours, gorilla trekking Uganda, Engatuny Tours & Travel",
+  openGraphImageUrl:
+    "https://images.pexels.com/photos/15017212/pexels-photo-15017212.jpeg?auto=compress&cs=tinysrgb&w=1600",
+  twitterHandle: "@engatunytravel",
+  facebookUrl: "https://www.facebook.com",
+  instagramUrl: "https://www.instagram.com",
+  xUrl: "https://x.com",
+  youtubeUrl: "https://www.youtube.com",
+  tiktokUrl: "https://www.tiktok.com",
 };
 
 export const contactDetails = {
@@ -35,11 +55,17 @@ export function getWhatsAppUrl(phone: string) {
   return `https://wa.me/${normalized}?text=Hello%20Engatuny%20Tours%20%26%20Travel%2C%20I%20would%20love%20help%20planning%20my%20Uganda%20journey.`;
 }
 
-export const socialLinks = [
-  { label: "Instagram", href: "https://www.instagram.com", icon: "IG" },
-  { label: "Facebook", href: "https://www.facebook.com", icon: "FB" },
-  { label: "X", href: "https://x.com", icon: "X" },
-];
+export function getSocialLinks(settings: SiteSettings): SocialLink[] {
+  const links: SocialLink[] = [
+    { label: "Facebook", href: settings.facebookUrl, kind: "facebook" },
+    { label: "Instagram", href: settings.instagramUrl, kind: "instagram" },
+    { label: "X", href: settings.xUrl, kind: "x" },
+    { label: "YouTube", href: settings.youtubeUrl, kind: "youtube" },
+    { label: "TikTok", href: settings.tiktokUrl, kind: "tiktok" },
+  ];
+
+  return links.filter((link) => link.href.trim().length > 0);
+}
 
 export const trustMetrics = [
   { label: "Lion-hearted hosting from arrival to farewell" },
