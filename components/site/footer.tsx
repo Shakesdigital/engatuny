@@ -61,7 +61,12 @@ export function Footer({
             <a href={`mailto:${email}`} className="block hover:text-sand-50">
               {email}
             </a>
-            <a href={getWhatsAppUrl(phone)} target="_blank" rel="noreferrer" className="block hover:text-sand-50">
+            <a
+              href={getWhatsAppUrl(phone)}
+              target="_blank"
+              rel="noreferrer"
+              className="block hover:text-sand-50"
+            >
               WhatsApp us
             </a>
           </div>
@@ -82,8 +87,16 @@ export function Footer({
         </div>
       </div>
       <div className="border-t border-sand-50/10">
-        <div className="layout py-5 text-sm text-sand-50/70">
-          © 2026 Engatuny Tours &amp; Travel - Lion-hearted journeys across Uganda.
+        <div className="layout py-5 text-center text-sm text-sand-50/70">
+          2026 Engatuny Tours and Travel - All Rights Reserved - Designed and Powered By{" "}
+          <a
+            href="https://shakesdigital.com/"
+            target="_blank"
+            rel="noreferrer"
+            className="font-semibold text-sand-50 transition-colors duration-200 hover:text-brand-300"
+          >
+            Shakes Digital
+          </a>
         </div>
       </div>
     </footer>
