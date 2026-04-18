@@ -283,6 +283,9 @@ export const defaultPages: CmsPage[] = [
       heroImageUrl:
         "https://images.pexels.com/photos/34845589/pexels-photo-34845589.jpeg?auto=compress&cs=tinysrgb&w=1600",
       heroImagePath: "",
+      featuredImageUrl:
+        "https://images.pexels.com/photos/15017212/pexels-photo-15017212.jpeg?auto=compress&cs=tinysrgb&w=1400",
+      featuredImagePath: "",
       heroEyebrow: "Our journeys",
       heroTitle: "Tour pages built to show the route, mood, and meaning of each journey.",
       heroDescription:

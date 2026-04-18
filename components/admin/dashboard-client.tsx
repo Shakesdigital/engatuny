@@ -279,6 +279,14 @@ const settingsGroups = [
 ];
 
 const pageMediaConfig: Record<string, MediaDescriptor[]> = {
+  tours: [
+    {
+      label: "Tours Featured Image",
+      urlKey: "featuredImageUrl",
+      pathKey: "featuredImagePath",
+      folder: "pages",
+    },
+  ],
   about: [
     {
       label: "Featured About Image",

@@ -32,19 +32,36 @@ export default async function ToursPage() {
 
       <section className="section bg-white">
         <div className="layout">
-          <SectionHeading
-            eyebrow={getPageText(page, "browseEyebrow", "Browse and compare")}
-            title={getPageText(
-              page,
-              "browseTitle",
-              "Clear itineraries, strong visuals, and dedicated pages for every route.",
-            )}
-            description={getPageText(
-              page,
-              "browseDescription",
-              "Each tour is listed here and also has its own page so travellers can understand the experience before they enquire.",
-            )}
-          />
+          <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+            <SectionHeading
+              eyebrow={getPageText(page, "browseEyebrow", "Browse and compare")}
+              title={getPageText(
+                page,
+                "browseTitle",
+                "Clear itineraries, strong visuals, and dedicated pages for every route.",
+              )}
+              description={getPageText(
+                page,
+                "browseDescription",
+                "Each tour is listed here and also has its own page so travellers can understand the experience before they enquire.",
+              )}
+            />
+            <div className="card overflow-hidden">
+              <img
+                src={getPageText(
+                  page,
+                  "featuredImageUrl",
+                  "https://images.pexels.com/photos/15017212/pexels-photo-15017212.jpeg?auto=compress&cs=tinysrgb&w=1400",
+                )}
+                alt={getPageText(
+                  page,
+                  "featuredImageAlt",
+                  "Safari vehicle framed by acacia woodland on a Uganda journey.",
+                )}
+                className="h-full min-h-[360px] w-full object-cover"
+              />
+            </div>
+          </div>
           <div className="mt-10">
             <ToursBrowser tours={tours} />
           </div>
