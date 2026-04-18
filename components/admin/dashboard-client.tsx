@@ -253,7 +253,7 @@ const pageEditorConfig: Record<string, { summary: string; fields: PageField[] }>
   },
 };
 
-const landingPageSlugs = ["home", "about", "contact"];
+const landingPageSlugs = ["home", "tours", "about", "blog", "contact"];
 const settingsGroups = [
   {
     title: "General",
@@ -561,7 +561,7 @@ function PagesWorkspace({
           <ResourceListCard
             eyebrow="Pages List"
             title="Landing Pages"
-            description="Home, About, and Contact are separated into individual editors."
+            description="Home, Tours, About, Blog, and Contact are separated into individual editors."
           >
             {pages.map((page) => (
               <SelectableResourceButton
