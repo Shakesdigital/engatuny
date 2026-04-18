@@ -52,6 +52,7 @@ export type BlogPost = {
 
 export type GalleryPhoto = {
   src: string;
+  imagePath?: string;
   alt: string;
   caption: string;
   height: number;
@@ -85,7 +86,9 @@ export type ContactSubmission = {
   createdAt: string;
 };
 
-export type PageContentObject = Record<string, string>;
+export type PageContentScalar = string | number | boolean | null;
+
+export type PageContentObject = Record<string, PageContentScalar>;
 
 export type PageContentValue =
   | string

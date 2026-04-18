@@ -62,7 +62,9 @@ export default async function AdminPage() {
       metaTitle: page.meta_title ?? fallback.metaTitle,
       metaDescription: page.meta_description ?? fallback.metaDescription,
       content:
-        page.content && typeof page.content === "object" ? page.content : fallback.content,
+        page.content && typeof page.content === "object"
+          ? { ...fallback.content, ...page.content }
+          : fallback.content,
     };
   });
 

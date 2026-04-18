@@ -8,6 +8,7 @@ import type {
   BlogPost,
   CmsPage,
   ContactSubmission,
+  GalleryPhoto,
   PageContentValue,
   Testimonial,
   Tour,
@@ -28,7 +29,7 @@ type RequestFn = (path: string, init: RequestInit, key: string) => Promise<boole
 type AdminTab = "landing-pages" | "tours" | "blog" | "submissions" | "settings";
 type TourSelection = { kind: "page" } | { kind: "tour"; index: number };
 type BlogSelection = { kind: "page" } | { kind: "post"; index: number };
-type PageFieldType = "text" | "textarea" | "list" | "cards" | "slides";
+type PageFieldType = "text" | "textarea" | "list" | "cards" | "slides" | "gallery";
 type PageField = {
   key: string;
   label: string;
@@ -124,6 +125,7 @@ const pageEditorConfig: Record<string, { summary: string; fields: PageField[] }>
         rows: 3,
         className: "md:col-span-2",
       },
+      { key: "galleryPhotos", label: "Gallery Photos", type: "gallery", className: "md:col-span-2" },
       { key: "ctaTitle", label: "Bottom CTA Title", type: "textarea", rows: 3, className: "md:col-span-2" },
       {
         key: "ctaDescription",
@@ -1522,6 +1524,10 @@ function PageFieldEditor({
     return <HeroSlidesField page={page} field={field} setPagesState={setPagesState} />;
   }
 
+  if (field.type === "gallery") {
+    return <GalleryPhotosField page={page} field={field} setPagesState={setPagesState} />;
+  }
+
   return (
     <Field
       label={field.label}
@@ -1657,6 +1663,105 @@ function HeroSlidesField({
               onClick={() => removeHeroSlide(setPagesState, page.slug, field.key, index)}
             >
               Delete Slide
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function GalleryPhotosField({
+  page,
+  field,
+  setPagesState,
+}: {
+  page: CmsPage;
+  field: PageField;
+  setPagesState: Dispatch<SetStateAction<CmsPage[]>>;
+}) {
+  const photos = getGalleryPhotosFromValue(page.content[field.key]);
+
+  return (
+    <div className={`space-y-4 ${field.className ?? ""}`}>
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-sm font-semibold uppercase tracking-[0.12em] text-charcoal-500">
+          {field.label}
+        </span>
+        <button
+          type="button"
+          className="btn-ghost"
+          onClick={() =>
+            updatePageContent(setPagesState, page.slug, field.key, [...photos, makeGalleryPhoto()])
+          }
+        >
+          Add Photo
+        </button>
+      </div>
+
+      {photos.map((photo, index) => (
+        <div
+          key={`${page.slug}-gallery-photo-${index}`}
+          className="rounded-[1.25rem] border border-brand-900/10 p-4"
+        >
+          <div className="grid gap-4 md:grid-cols-2">
+            <MediaField
+              label={`Photo ${index + 1} Image`}
+              currentUrl={photo.src}
+              currentPath={photo.imagePath}
+              folder="pages"
+              slug={page.slug}
+              field={`gallery-photo-${index + 1}`}
+              onUploaded={(url, path) =>
+                updateGalleryPhoto(setPagesState, page.slug, field.key, index, {
+                  src: url,
+                  imagePath: path,
+                })
+              }
+              onCleared={() =>
+                updateGalleryPhoto(setPagesState, page.slug, field.key, index, {
+                  src: "",
+                  imagePath: "",
+                })
+              }
+              className="md:col-span-2"
+            />
+            <Field
+              label="Alt Text"
+              value={photo.alt}
+              onChange={(value) =>
+                updateGalleryPhoto(setPagesState, page.slug, field.key, index, { alt: value })
+              }
+            />
+            <Field
+              label="Card Height"
+              type="number"
+              value={String(photo.height)}
+              onChange={(value) =>
+                updateGalleryPhoto(setPagesState, page.slug, field.key, index, {
+                  height: Number.parseInt(value, 10) || 420,
+                })
+              }
+            />
+            <TextAreaField
+              label="Caption"
+              value={photo.caption}
+              onChange={(value) =>
+                updateGalleryPhoto(setPagesState, page.slug, field.key, index, {
+                  caption: value,
+                })
+              }
+              rows={3}
+              className="md:col-span-2"
+            />
+          </div>
+          <div className="mt-4">
+            <button
+              type="button"
+              className="btn-ghost"
+              onClick={() => removeGalleryPhoto(setPagesState, page.slug, field.key, index)}
+            >
+              Delete Photo
             </button>
           </div>
         </div>
@@ -2252,6 +2357,31 @@ function updateHeroSlide(
   );
 }
 
+function updateGalleryPhoto(
+  setter: Dispatch<SetStateAction<CmsPage[]>>,
+  slug: string,
+  fieldKey: string,
+  index: number,
+  patch: Partial<GalleryPhoto>,
+) {
+  setter((current) =>
+    current.map((page) => {
+      if (page.slug !== slug) return page;
+      const photos = getGalleryPhotosFromValue(page.content[fieldKey]);
+
+      return {
+        ...page,
+        content: {
+          ...page.content,
+          [fieldKey]: photos.map((photo, photoIndex) =>
+            photoIndex === index ? { ...photo, ...patch } : photo,
+          ),
+        },
+      };
+    }),
+  );
+}
+
 function removeHeroSlide(
   setter: Dispatch<SetStateAction<CmsPage[]>>,
   slug: string,
@@ -2268,6 +2398,28 @@ function removeHeroSlide(
         content: {
           ...page.content,
           [fieldKey]: slides.filter((_, slideIndex) => slideIndex !== index),
+        },
+      };
+    }),
+  );
+}
+
+function removeGalleryPhoto(
+  setter: Dispatch<SetStateAction<CmsPage[]>>,
+  slug: string,
+  fieldKey: string,
+  index: number,
+) {
+  setter((current) =>
+    current.map((page) => {
+      if (page.slug !== slug) return page;
+      const photos = getGalleryPhotosFromValue(page.content[fieldKey]);
+
+      return {
+        ...page,
+        content: {
+          ...page.content,
+          [fieldKey]: photos.filter((_, photoIndex) => photoIndex !== index),
         },
       };
     }),
@@ -2327,6 +2479,28 @@ function getHeroSlidesFromValue(value: unknown) {
     : [];
 }
 
+function getGalleryPhotosFromValue(value: unknown): GalleryPhoto[] {
+  return Array.isArray(value)
+    ? value
+        .filter((item) => item && typeof item === "object" && !Array.isArray(item))
+        .map((item) => {
+          const photo = item as Record<string, unknown>;
+          const heightValue =
+            typeof photo.height === "number"
+              ? photo.height
+              : Number.parseInt(String(photo.height ?? ""), 10);
+
+          return {
+            src: typeof photo.src === "string" ? photo.src : "",
+            imagePath: typeof photo.imagePath === "string" ? photo.imagePath : "",
+            alt: typeof photo.alt === "string" ? photo.alt : "",
+            caption: typeof photo.caption === "string" ? photo.caption : "",
+            height: Number.isFinite(heightValue) && heightValue > 0 ? heightValue : 420,
+          };
+        })
+    : [];
+}
+
 function makeSlide() {
   return {
     imageUrl: "",
@@ -2338,6 +2512,16 @@ function makeSlide() {
     primaryCtaHref: "",
     secondaryCtaLabel: "",
     secondaryCtaHref: "",
+  };
+}
+
+function makeGalleryPhoto(): GalleryPhoto {
+  return {
+    src: "",
+    imagePath: "",
+    alt: "",
+    caption: "",
+    height: 420,
   };
 }
 

@@ -1,4 +1,9 @@
-import type { CmsPage, PageContentObject, PageContentValue } from "@/types/content";
+import type {
+  CmsPage,
+  GalleryPhoto,
+  PageContentObject,
+  PageContentValue,
+} from "@/types/content";
 
 export type HeroSlide = {
   imageUrl: string;
@@ -34,6 +39,39 @@ export function getPageObjectList(
     value.every((item) => item && typeof item === "object" && !Array.isArray(item))
     ? (value as PageContentObject[])
     : fallback;
+}
+
+export function getPageGalleryPhotos(
+  page: CmsPage | null,
+  key: string,
+  fallback: GalleryPhoto[],
+) {
+  const value = page?.content?.[key];
+
+  if (!Array.isArray(value)) {
+    return fallback;
+  }
+
+  const photos = value
+    .filter((item) => item && typeof item === "object" && !Array.isArray(item))
+    .map((item) => {
+      const record = item as Record<string, unknown>;
+      const heightValue =
+        typeof record.height === "number"
+          ? record.height
+          : Number.parseInt(String(record.height ?? ""), 10);
+
+      return {
+        src: typeof record.src === "string" ? record.src : "",
+        imagePath: typeof record.imagePath === "string" ? record.imagePath : "",
+        alt: typeof record.alt === "string" ? record.alt : "",
+        caption: typeof record.caption === "string" ? record.caption : "",
+        height: Number.isFinite(heightValue) && heightValue > 0 ? heightValue : 420,
+      };
+    })
+    .filter((photo) => photo.src);
+
+  return photos.length ? photos : fallback;
 }
 
 export function getPageValue<T extends PageContentValue>(

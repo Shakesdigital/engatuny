@@ -70,7 +70,7 @@ function mapPageRow(row: Record<string, unknown>): CmsPage {
     metaDescription: (row.meta_description as string) ?? fallback.metaDescription,
     content:
       row.content && typeof row.content === "object"
-        ? (row.content as PageContent)
+        ? ({ ...fallback.content, ...(row.content as PageContent) } as PageContent)
         : fallback.content,
   };
 }

@@ -7,7 +7,13 @@ import { TestimonialCarousel } from "@/components/ui/testimonial-carousel";
 import { TourCard } from "@/components/ui/tour-card";
 import { galleryMoments, trustMetrics, whyChooseEngatuny } from "@/lib/site-data";
 import { getPageBySlug, getSiteSettings, getTestimonials, getTours } from "@/lib/cms";
-import { getPageHeroSlides, getPageList, getPageObjectList, getPageText } from "@/lib/page-utils";
+import {
+  getPageGalleryPhotos,
+  getPageHeroSlides,
+  getPageList,
+  getPageObjectList,
+  getPageText,
+} from "@/lib/page-utils";
 
 export const dynamic = 'force-dynamic';
 
@@ -43,6 +49,7 @@ export default async function HomePage() {
       description: item.description,
     })),
   );
+  const galleryPhotos = getPageGalleryPhotos(page, "galleryPhotos", galleryMoments);
 
   return (
     <>
@@ -173,7 +180,7 @@ export default async function HomePage() {
           "galleryTitle",
           "Golden plains, forest stillness, and the warmth between destinations.",
         )}
-        photos={galleryMoments}
+        photos={galleryPhotos}
       />
 
       <CTASection

@@ -8,6 +8,21 @@ function service(icon: string, title: string, description: string): PageContentO
   return { icon, title, description };
 }
 
+function galleryPhoto(
+  src: string,
+  alt: string,
+  caption: string,
+  height: number,
+): PageContentObject {
+  return {
+    src,
+    imagePath: "",
+    alt,
+    caption,
+    height,
+  };
+}
+
 function slide(
   imageUrl: string,
   eyebrow: string,
@@ -116,6 +131,32 @@ export const defaultPages: CmsPage[] = [
       galleryEyebrow: "Moments from the Pearl",
       galleryTitle:
         "Golden plains, forest stillness, and the warmth between destinations.",
+      galleryPhotos: [
+        galleryPhoto(
+          "https://images.pexels.com/photos/34845589/pexels-photo-34845589.jpeg",
+          "Safari vehicle overlooking a broad savannah at golden hour.",
+          "Wide northern horizons that make you breathe more slowly.",
+          420,
+        ),
+        galleryPhoto(
+          "https://images.pexels.com/photos/36804628/pexels-photo-36804628.jpeg",
+          "Mountain gorilla surrounded by fresh green forest.",
+          "Forest encounters that stay with travellers for years.",
+          540,
+        ),
+        galleryPhoto(
+          "https://images.pexels.com/photos/17443313/pexels-photo-17443313.jpeg",
+          "Waterfall cascading through dense tropical greenery.",
+          "Cool highland air, mist, and long green views.",
+          540,
+        ),
+        galleryPhoto(
+          "https://images.pexels.com/photos/18856023/pexels-photo-18856023.jpeg",
+          "Woman in a village scene in warm light, reflecting authentic community connection.",
+          "Human warmth that gives every journey its true memory.",
+          420,
+        ),
+      ],
       ctaTitle: "Ready to follow the lion's path across Uganda?",
       ctaDescription:
         "Tell us whether you want more wildlife, more culture, more adventure, or a thoughtful balance of all three. We will shape the route around you.",
