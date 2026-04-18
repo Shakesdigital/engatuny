@@ -366,10 +366,10 @@ export function AdminDashboardClient({
         ...init,
         headers: { "Content-Type": "application/json", ...(init.headers ?? {}) },
       });
-      const payload = await response.json().catch(() => ({}));
+      const payload = await readResponsePayload(response);
 
       if (!response.ok) {
-        throw new Error(payload.error ?? "Request failed");
+        throw new Error(getPayloadError(payload, "Request failed"));
       }
 
       setMessage("Saved successfully.");
@@ -1714,10 +1714,17 @@ function MediaField({
         body: formData,
       });
 
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error ?? "Upload failed");
+      const payload = await readResponsePayload(response);
+      if (!response.ok) throw new Error(getPayloadError(payload, "Upload failed"));
 
-      onUploaded(payload.url, payload.path);
+      const url = getPayloadString(payload, "url");
+      const path = getPayloadString(payload, "path");
+
+      if (!url || !path) {
+        throw new Error("Upload completed without a usable media URL.");
+      }
+
+      onUploaded(url, path);
       event.target.value = "";
     } catch (error) {
       window.alert(error instanceof Error ? error.message : "Upload failed.");
@@ -1739,8 +1746,8 @@ function MediaField({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ path: currentPath }),
       });
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(payload.error ?? "Delete failed");
+      const payload = await readResponsePayload(response);
+      if (!response.ok) throw new Error(getPayloadError(payload, "Delete failed"));
       onCleared();
     } catch (error) {
       window.alert(error instanceof Error ? error.message : "Delete failed.");
@@ -2332,4 +2339,28 @@ function makeSlide() {
     secondaryCtaLabel: "",
     secondaryCtaHref: "",
   };
+}
+
+async function readResponsePayload(response: Response): Promise<Record<string, unknown>> {
+  const raw = await response.text();
+
+  if (!raw.trim()) {
+    return {};
+  }
+
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? (parsed as Record<string, unknown>) : {};
+  } catch {
+    return { error: raw };
+  }
+}
+
+function getPayloadError(payload: Record<string, unknown>, fallback: string) {
+  return typeof payload.error === "string" && payload.error.trim() ? payload.error : fallback;
+}
+
+function getPayloadString(payload: Record<string, unknown>, key: string) {
+  const value = payload[key];
+  return typeof value === "string" && value.trim() ? value : "";
 }
