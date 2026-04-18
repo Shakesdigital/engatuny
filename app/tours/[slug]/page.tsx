@@ -57,7 +57,7 @@ export default async function TourDetailPage({
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `linear-gradient(180deg, rgba(34, 24, 19, 0.18) 0%, rgba(34, 24, 19, 0.9) 100%), url('${tour.image}?auto=compress&cs=tinysrgb&w=1600')`,
+            backgroundImage: `linear-gradient(180deg, rgba(34, 24, 19, 0.1) 0%, rgba(34, 24, 19, 0.5) 100%), url('${tour.image}?auto=compress&cs=tinysrgb&w=1600')`,
           }}
         />
         <div className="layout relative py-24 md:py-32">

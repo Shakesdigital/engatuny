@@ -16,7 +16,7 @@ export function HeroSlider({
   slides,
   brandingNode,
   minHeightClassName = "min-h-[76vh]",
-  overlayClassName = "bg-brand-900/55",
+  overlayClassName = "bg-brand-900/30",
   contentClassName = "max-w-4xl text-white",
 }: HeroSliderProps) {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -43,7 +43,7 @@ export function HeroSlider({
               index === activeIndex ? "opacity-100" : "opacity-0"
             }`}
             style={{
-              backgroundImage: `linear-gradient(180deg, rgba(34, 24, 19, 0.18) 0%, rgba(34, 24, 19, 0.9) 100%), url('${slide.imageUrl}')`,
+              backgroundImage: `linear-gradient(180deg, rgba(34, 24, 19, 0.1) 0%, rgba(34, 24, 19, 0.5) 100%), url('${slide.imageUrl}')`,
             }}
           />
         ))}
