@@ -692,7 +692,7 @@ function ToursWorkspace({
               saving={saving}
               request={request}
             />
-          ) : selectedTour ? (
+          ) : selection.kind === "tour" && selectedTour ? (
             <TourEditorPanel
               tour={selectedTour}
               index={selection.index}
@@ -811,7 +811,7 @@ function BlogWorkspace({
               saving={saving}
               request={request}
             />
-          ) : selectedPost ? (
+          ) : selection.kind === "post" && selectedPost ? (
             <BlogPostEditorPanel
               post={selectedPost}
               index={selection.index}
