@@ -29,15 +29,15 @@ export function getPageList(page: CmsPage | null, key: string, fallback: string[
     : fallback;
 }
 
-export function getPageObjectList(
+export function getPageObjectList<T extends PageContentObject>(
   page: CmsPage | null,
   key: string,
-  fallback: PageContentObject[],
-) {
+  fallback: T[],
+): T[] {
   const value = page?.content?.[key];
   return Array.isArray(value) &&
     value.every((item) => item && typeof item === "object" && !Array.isArray(item))
-    ? (value as PageContentObject[])
+    ? (value as T[])
     : fallback;
 }
 
