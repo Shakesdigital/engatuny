@@ -2,7 +2,11 @@ import { AdminDashboardClient } from "@/components/admin/dashboard-client";
 import { defaultPagesBySlug } from "@/lib/page-content";
 import { requireAdmin } from "@/lib/auth";
 import { blogPosts, siteSettings, testimonials, tours } from "@/lib/site-data";
-import { isSupabaseConfigured } from "@/lib/supabase/config";
+import {
+  getMissingSupabaseEnvVars,
+  isSupabaseAdminConfigured,
+  isSupabaseConfigured,
+} from "@/lib/supabase/config";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +26,9 @@ export default async function AdminPage() {
       </section>
     );
   }
+
+  const adminConfigured = isSupabaseAdminConfigured();
+  const missingAdminVars = getMissingSupabaseEnvVars({ admin: true });
 
   const { supabase, user } = await requireAdmin();
 
@@ -126,6 +133,20 @@ export default async function AdminPage() {
   return (
     <section className="section">
       <div className="layout">
+        {!adminConfigured ? (
+          <div className="card mb-8 border border-amber-300 bg-amber-50 p-6">
+            <h1 className="font-heading text-3xl text-brand-900">
+              CMS uploads are not fully configured
+            </h1>
+            <p className="mt-3 text-sm leading-7 text-charcoal-700">
+              The admin area is loading, but media uploads and other privileged CMS actions need
+              the missing environment variables below:
+            </p>
+            <p className="mt-3 font-mono text-sm text-charcoal-800">
+              {missingAdminVars.join(", ")}
+            </p>
+          </div>
+        ) : null}
         <AdminDashboardClient
           settings={{
             site_name: settings.site_name ?? siteSettings.siteName,

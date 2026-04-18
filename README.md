@@ -123,6 +123,7 @@ Publish directory: .next
 ```
 
 4. Add the same environment variables from `.env.local` in Netlify.
+   For the CMS backend, image uploads require `SUPABASE_SERVICE_ROLE_KEY` in addition to the two public keys.
 5. If you use the Netlify Next.js runtime, Netlify will detect the Next.js app automatically.
 
 ## Stock photo sources
