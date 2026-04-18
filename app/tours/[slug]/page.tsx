@@ -4,6 +4,8 @@ import { CTASection } from "@/components/sections/cta-section";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { getTourBySlug, getTours } from "@/lib/cms";
 
+export const dynamic = 'force-dynamic';
+
 export async function generateStaticParams() {
   const tours = await getTours();
   return tours.map((tour) => ({ slug: tour.slug }));

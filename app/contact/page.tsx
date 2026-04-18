@@ -6,6 +6,8 @@ import { getWhatsAppUrl } from "@/lib/site-data";
 import { getPageBySlug, getSiteSettings, getTours } from "@/lib/cms";
 import { getPageHeroSlides, getPageText } from "@/lib/page-utils";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Contact",
   description:

@@ -9,6 +9,8 @@ import { galleryMoments, trustMetrics, whyChooseEngatuny } from "@/lib/site-data
 import { getPageBySlug, getSiteSettings, getTestimonials, getTours } from "@/lib/cms";
 import { getPageHeroSlides, getPageList, getPageObjectList, getPageText } from "@/lib/page-utils";
 
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
   const [tours, testimonials, settings, page] = await Promise.all([
     getTours(),

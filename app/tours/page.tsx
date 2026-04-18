@@ -5,6 +5,8 @@ import { SectionHeading } from "@/components/ui/section-heading";
 import { getPageBySlug, getTours } from "@/lib/cms";
 import { getPageHeroSlides, getPageText } from "@/lib/page-utils";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Tours",
   description:

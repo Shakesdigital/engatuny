@@ -6,6 +6,8 @@ import { aboutValues, services, travellerReasons } from "@/lib/site-data";
 import { getPageBySlug, getSiteSettings } from "@/lib/cms";
 import { getPageHeroSlides, getPageList, getPageObjectList, getPageText } from "@/lib/page-utils";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "About Us",
   description:
