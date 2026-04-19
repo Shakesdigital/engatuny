@@ -123,7 +123,6 @@ export const tours: Tour[] = [
     highlights: ["Sunset Nile cruise", "White-water rafting", "Source of the Nile", "Coffee stop"],
     idealFor: ["Friends", "Adventure seekers", "Short Uganda add-ons"],
     inclusions: ["Ground transport", "Guide support", "Selected activities", "Accommodation with breakfast"],
-    accommodations: ["Boutique riverside lodge", "Comfortable adventure camp", "Mid-range guesthouse in Jinja"],
     landscapeStory:
       "Jinja offers a softer, brighter side of Uganda: broad water, green banks, and warm evening light moving slowly across the Nile.",
     cultureStory:
@@ -160,7 +159,6 @@ export const tours: Tour[] = [
     highlights: ["Murchison Falls", "Game drives", "Nile boat safari", "Budongo chimpanzees"],
     idealFor: ["First-time safari travellers", "Couples", "Small private groups"],
     inclusions: ["4x4 transport", "Park entry", "Guide-driver", "Accommodation and meals as per route"],
-    accommodations: ["River-facing safari lodge", "Mid-range bush camp", "Comfortable park lodge"],
     landscapeStory:
       "Murchison combines rolling savannah, riverbanks, palm-dotted plains, and the concentrated force of the Nile at the falls.",
     cultureStory:
@@ -196,7 +194,6 @@ export const tours: Tour[] = [
     highlights: ["Waterfall hikes", "Arabica coffee experience", "Escarpment views", "Cool mountain climate"],
     idealFor: ["Honeymoon add-ons", "Slow travellers", "Nature lovers"],
     inclusions: ["Transport", "Guide support", "Coffee experience", "Accommodation with meals as planned"],
-    accommodations: ["View-rich eco lodge", "Comfortable hillside cottage", "Mid-range retreat with valley views"],
     landscapeStory:
       "Sipi is all vertical drama: cliffs, mist, cultivated slopes, and a horizon that opens wide across eastern Uganda.",
     cultureStory:
@@ -236,7 +233,6 @@ export const tours: Tour[] = [
     highlights: ["Kidepo landscapes", "Karamojong cultural immersion", "Lion country", "Remote safari atmosphere"],
     idealFor: ["Second-time Uganda visitors", "Photographers", "Travellers drawn to culture and remote landscapes"],
     inclusions: ["4x4 transport or tailored routing", "Guide-driver", "Park fees", "Cultural visit coordination", "Accommodation and meals as scheduled"],
-    accommodations: ["Apoka-style luxury safari lodge", "Comfortable mid-range bush lodge", "Practical frontier camp with strong access"],
     landscapeStory:
       "Kidepo is one of the most visually powerful parks in East Africa: long valleys, mountain walls, open grassland, dry riverbeds, and a sense of space that changes the pace of the traveller.",
     cultureStory:
@@ -273,7 +269,6 @@ export const tours: Tour[] = [
     highlights: ["Gorilla permit support", "Bwindi forest", "Community add-on", "Scenic southwest route"],
     idealFor: ["Bucket-list travellers", "Wildlife lovers", "Private couples or families"],
     inclusions: ["Accommodation", "Transport", "Guide support", "Trek logistics"],
-    accommodations: ["Forest-edge lodge", "Comfortable mid-range camp", "Premium gorilla safari lodge"],
     landscapeStory:
       "Bwindi feels dense, alive, and close. The atmosphere is shaped by steep green hills, layered forest, and mist that turns ordinary moments cinematic.",
     cultureStory:

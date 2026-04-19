@@ -1382,7 +1382,6 @@ function TourEditorPanel({
         <TextAreaField label="Highlights" value={tour.highlights.join("\n")} onChange={(value) => updateItem(setTourState, index, { highlights: splitLineList(value) })} rows={5} className="md:col-span-2" />
         <TextAreaField label="Ideal For" value={tour.idealFor.join("\n")} onChange={(value) => updateItem(setTourState, index, { idealFor: splitLineList(value) })} rows={5} className="md:col-span-2" />
         <TextAreaField label="Inclusions" value={tour.inclusions.join("\n")} onChange={(value) => updateItem(setTourState, index, { inclusions: splitLineList(value) })} rows={5} className="md:col-span-2" />
-        <TextAreaField label="Accommodation Options" value={tour.accommodations.join("\n")} onChange={(value) => updateItem(setTourState, index, { accommodations: splitLineList(value) })} rows={5} className="md:col-span-2" />
         <TextAreaField label="Landscape Story" value={tour.landscapeStory} onChange={(value) => updateItem(setTourState, index, { landscapeStory: value })} rows={4} className="md:col-span-2" />
         <TextAreaField label="Culture Story" value={tour.cultureStory} onChange={(value) => updateItem(setTourState, index, { cultureStory: value })} rows={4} className="md:col-span-2" />
         <TextAreaField label="Wildlife Story" value={tour.wildlifeStory} onChange={(value) => updateItem(setTourState, index, { wildlifeStory: value })} rows={4} className="md:col-span-2" />
@@ -2341,7 +2340,6 @@ function makeEmptyTour(): Tour {
     itinerary: [],
     idealFor: [],
     inclusions: [],
-    accommodations: [],
     landscapeStory: "",
     cultureStory: "",
     wildlifeStory: "",

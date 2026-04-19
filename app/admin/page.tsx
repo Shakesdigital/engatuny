@@ -92,7 +92,6 @@ export default async function AdminPage() {
       itinerary: Array.isArray(tour.itinerary) ? tour.itinerary : [],
       idealFor: Array.isArray(tour.ideal_for) ? tour.ideal_for : [],
       inclusions: Array.isArray(tour.inclusions) ? tour.inclusions : [],
-      accommodations: Array.isArray(tour.accommodations) ? tour.accommodations : [],
       landscapeStory: tour.landscape_story ?? "",
       cultureStory: tour.culture_story ?? "",
       wildlifeStory: tour.wildlife_story ?? "",

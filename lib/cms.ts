@@ -50,7 +50,6 @@ function mapTourRow(row: Record<string, unknown>): Tour {
     highlights: Array.isArray(row.highlights) ? (row.highlights as string[]) : [],
     idealFor: Array.isArray(row.ideal_for) ? (row.ideal_for as string[]) : [],
     inclusions: Array.isArray(row.inclusions) ? (row.inclusions as string[]) : [],
-    accommodations: Array.isArray(row.accommodations) ? (row.accommodations as string[]) : [],
     landscapeStory: (row.landscape_story as string) ?? "",
     cultureStory: (row.culture_story as string) ?? "",
     wildlifeStory: (row.wildlife_story as string) ?? "",

@@ -91,7 +91,7 @@ export function Footer({
       </div>
       <div className="border-t border-sand-50/10">
         <div className="layout py-5 text-center text-sm text-sand-50/70">
-          2026 Engatuny Tours and Travel - All Rights Reserved - Designed and Powered By{" "}
+          (C) 2026 Engatuny Tours and Travel - All Rights Reserved - Designed and Powered By{" "}
           <a
             href="https://shakesdigital.com/"
             target="_blank"

@@ -23,7 +23,6 @@ export type Tour = {
   highlights: string[];
   idealFor: string[];
   inclusions: string[];
-  accommodations: string[];
   landscapeStory: string;
   cultureStory: string;
   wildlifeStory: string;
