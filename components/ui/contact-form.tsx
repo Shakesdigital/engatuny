@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import { getWhatsAppEnquiryUrl, OWNER_WHATSAPP_NUMBER } from "@/lib/site-data";
 import type { Tour } from "@/types/content";
 
 type ContactFormProps = {
@@ -25,15 +26,23 @@ export function ContactForm({ preferredTour, tours }: ContactFormProps) {
     event.preventDefault();
     setStatus("submitting");
 
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const payload = {
+      name: String(formData.get("name") ?? "").trim(),
+      email: String(formData.get("email") ?? "").trim(),
+      preferredTour: String(formData.get("preferredTour") ?? "").trim(),
+      message: String(formData.get("message") ?? "").trim(),
+    };
+
     try {
-      const formData = new FormData(event.currentTarget);
       const response = await fetch("/api/contact", {
         method: "POST",
         body: JSON.stringify({
-          name: formData.get("name"),
-          email: formData.get("email"),
-          preferredTour: formData.get("preferredTour"),
-          message: formData.get("message"),
+          name: payload.name,
+          email: payload.email,
+          preferredTour: payload.preferredTour || undefined,
+          message: payload.message,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -43,12 +52,20 @@ export function ContactForm({ preferredTour, tours }: ContactFormProps) {
       if (!response.ok) {
         throw new Error("Unable to submit form");
       }
-
-      event.currentTarget.reset();
-      setStatus("success");
     } catch {
-      setStatus("error");
+      // Keep the WhatsApp handoff working even if lead persistence fails.
     }
+
+    const whatsappUrl = getWhatsAppEnquiryUrl({
+      phone: OWNER_WHATSAPP_NUMBER,
+      name: payload.name,
+      email: payload.email,
+      preferredTour: payload.preferredTour || undefined,
+      message: payload.message,
+    });
+
+    form.reset();
+    window.location.assign(whatsappUrl);
   }
 
   return (
@@ -106,11 +123,6 @@ export function ContactForm({ preferredTour, tours }: ContactFormProps) {
         <button type="submit" className="btn-primary">
           {status === "submitting" ? "Sending..." : "Send Enquiry"}
         </button>
-        {status === "success" ? (
-          <p className="text-sm font-semibold text-brand-900">
-            Your message is on its way. We will reply shortly.
-          </p>
-        ) : null}
         {status === "error" ? (
           <p className="text-sm font-semibold text-red-700">
             Something went wrong. Please try again or reach out on WhatsApp.

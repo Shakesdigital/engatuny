@@ -30,6 +30,7 @@ export function Shell({
         brandMeaning={settings.brandMeaning}
         email={settings.email}
         phone={settings.phone}
+        whatsApp={settings.whatsApp}
         office={settings.office}
         socialLinks={getSocialLinks(settings)}
       />

@@ -6,6 +6,8 @@ export type SocialLink = {
   kind: "facebook" | "instagram" | "x" | "youtube" | "tiktok";
 };
 
+export const OWNER_WHATSAPP_NUMBER = "+256 750 700606";
+
 export const siteSettings: SiteSettings = {
   siteName: "Engatuny Tours & Travel",
   tagline: "Follow the lion's path across Uganda.",
@@ -14,7 +16,7 @@ export const siteSettings: SiteSettings = {
   siteUrl: "https://engatuny-tours.netlify.app",
   email: "hello@engatuny.com",
   phone: "+256772123456",
-  whatsApp: "+256772123456",
+  whatsApp: OWNER_WHATSAPP_NUMBER,
   office: "Plot 14, Kololo Hill Drive, Kampala, Uganda",
   primaryColor: "#5B3A1E",
   secondaryColor: "#C96A16",
@@ -53,6 +55,31 @@ export const contactDetails = {
 export function getWhatsAppUrl(phone: string) {
   const normalized = phone.replace(/[^\d]/g, "");
   return `https://wa.me/${normalized}?text=Hello%20Engatuny%20Tours%20%26%20Travel%2C%20I%20would%20love%20help%20planning%20my%20Uganda%20journey.`;
+}
+
+export function getWhatsAppEnquiryUrl({
+  phone,
+  name,
+  email,
+  preferredTour,
+  message,
+}: {
+  phone: string;
+  name: string;
+  email: string;
+  preferredTour?: string;
+  message: string;
+}) {
+  const normalized = phone.replace(/[^\d]/g, "");
+  const lines = [
+    "Hello Engatuny Tours & Travel, I would like to make an enquiry.",
+    `Name: ${name}`,
+    `Email: ${email}`,
+    preferredTour ? `Preferred Tour: ${preferredTour}` : undefined,
+    `Message: ${message}`,
+  ].filter(Boolean);
+
+  return `https://wa.me/${normalized}?text=${encodeURIComponent(lines.join("\n"))}`;
 }
 
 export function getSocialLinks(settings: SiteSettings): SocialLink[] {

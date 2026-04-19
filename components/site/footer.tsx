@@ -16,6 +16,7 @@ export function Footer({
   brandMeaning,
   email,
   phone,
+  whatsApp,
   office,
   socialLinks,
 }: {
@@ -24,6 +25,7 @@ export function Footer({
   brandMeaning: string;
   email: string;
   phone: string;
+  whatsApp: string;
   office: string;
   socialLinks: SocialLink[];
 }) {
@@ -65,7 +67,7 @@ export function Footer({
               {email}
             </a>
             <a
-              href={getWhatsAppUrl(phone)}
+              href={getWhatsAppUrl(whatsApp)}
               target="_blank"
               rel="noreferrer"
               className="block hover:text-sand-50"

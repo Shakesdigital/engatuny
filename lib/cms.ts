@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { defaultPages, defaultPagesBySlug } from "@/lib/page-content";
-import { blogPosts, siteSettings, testimonials, tours } from "@/lib/site-data";
+import { blogPosts, OWNER_WHATSAPP_NUMBER, siteSettings, testimonials, tours } from "@/lib/site-data";
 import type {
   BlogPost,
   CmsPage,
@@ -96,7 +96,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     siteUrl: mapped.site_url ?? siteSettings.siteUrl,
     email: mapped.contact_email ?? siteSettings.email,
     phone: mapped.contact_phone ?? siteSettings.phone,
-    whatsApp: mapped.contact_whatsapp ?? siteSettings.whatsApp,
+    whatsApp: OWNER_WHATSAPP_NUMBER,
     office: mapped.office_address ?? siteSettings.office,
     primaryColor: mapped.primary_color ?? siteSettings.primaryColor,
     secondaryColor: mapped.secondary_color ?? siteSettings.secondaryColor,
