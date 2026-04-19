@@ -129,22 +129,6 @@ export default async function TourDetailPage({
         </div>
       </section>
 
-      <section className="section bg-sand-50">
-        <div className="layout">
-          <SectionHeading
-            eyebrow="Stay Options"
-            title="Accommodation styles we can shape around this route."
-          />
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {tour.accommodations.map((option) => (
-              <div key={option} className="card p-6">
-                <p className="text-base leading-8 text-charcoal-700">{option}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <CTASection
         title={`Ready to plan the ${tour.title}?`}
         description="Send us your preferred dates, comfort level, and whether you want to add extra wildlife, culture, or slower downtime."
